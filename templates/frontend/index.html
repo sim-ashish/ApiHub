@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ApiHub | Home{% endblock title %}
+
+{% block content %}
+<div class="container-fluid p-0 m-0" style="height:90vh;background-color: black;">
+<div class="row" style="height: 80%;">
+<div class="col-12 text-center" style="width: 100vw;height:100%;">
+    <img src="{% static 'images/ApiHub.gif' %}" alt="" >
+</div>
+</div>
+
+<div class="row" style="height:20%;">
+    <div class="col-6 d-flex justify-content-center align-items-center"><button class="btn cstm-btn btn-md fw-semibold fs-4">Read The Docs <i class='bx bxs-notepad fw-semibold fs-4' ></i></button></div>
+    <div class="col-6 d-flex justify-content-center align-items-center"><button class="btn cstm-btn btn-md fw-semibold fs-4">Browse API's <i class='bx bx-code-alt fw-semibold fs-4'></i></button></div>
+</div>
+
+</div>
+{% endblock content %}

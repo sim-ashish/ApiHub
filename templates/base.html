@@ -1,31 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+    {% load static %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#ff5733">
     <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.0/css/boxicons.min.css" integrity="sha512-pVCM5+SN2+qwj36KonHToF2p1oIvoU3bsqxphdOIWMYmgr4ZqD3t5DjKvvetKhXGc/ZG5REYTT6ltKfExEei/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        .nav-link,.dropdown-item{
-            color:white !important;
-        }
-        .nav-link:hover,.dropdown-item:hover{
-            color: #8338ec !important;
-        }
-        .cstm-btn{
-            background-color: #8338ec !important;
-        }
-        .cstm-btn:hover{
-            box-shadow: 2px 2px 15px 15px #8338ec43, -2px -2px 15px 15px #8338ec43;
-        }
-        .code-snippet{
-            border: 2px solid #8338ec !important;
-            background-color: #8338ec27 !important;
-            border-radius: 8px;
-        }
-        </style>
 </head>
 <body data-bs-theme="dark">
 
@@ -46,13 +29,13 @@
               </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle fs-5" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Features
+                  Explore <i class='bx bx-compass'></i>
                 </a>
                 <ul class="dropdown-menu p-3">
-                  <li><a class="dropdown-item fs-5" href="/docs">Documentation</a></li>
-                  <li><a class="dropdown-item fs-5" href="#">Endpoints</a></li>
+                  <li><a class="dropdown-item fs-5" href="/docs">Documentation <i class='bx bxs-notepad fw-semibold fs-4' ></i></a></li>
+                  <li><a class="dropdown-item fs-5" href="#">Endpoints <i class='bx bx-code-alt fw-semibold fs-4'></i></a></li>
                   <li><hr class="dropdown-divider fs-5"></li>
-                  <li><a class="dropdown-item fs-5" href="#">Get Your JWT Token</a></li>
+                  <li><a class="dropdown-item fs-5" href="#">Get Your JWT Token <i class='bx bx-coin' ></i></a></li>
                 </ul>
               </li>
             </ul>

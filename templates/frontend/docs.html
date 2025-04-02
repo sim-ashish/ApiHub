@@ -8,62 +8,28 @@
             <p class="fs-4">Welcome to ApiHub, a platform where you can discover and integrate various APIs for your projects. The platform offers limited access to unauthorized users, allowing up to 30 API requests per day. To unlock additional usage, simply register and obtain your unique API token. These APIs support various HTTP methods, including GET, POST, PUT, PATCH, DELETE, OPTIONS, and HEADERS, providing a full range of functionality for interacting with and managing resources. Whether you're a developer looking to practice or build new integrations, ApiHub provides the tools to experiment with different endpoints and enhance your skills in API consumption and management. For optimal usage, ensure proper authentication and follow best practices for secure and efficient API calls.</p>
         </div>
     </div>
+
+    <!--End-Points Loop Start-->
+    {% for endpoint in endpoints %}
+    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
+        <div>
+            <h2 style="color:#fb5607; display:inline;">{{endpoint.endpoint_name}}</h2> 
+            <span class="badge text-bg-success">Success : {{endpoint.success_code}}</span> 
+            <span class="badge text-bg-danger">Error : {{endpoint.error_code}}</span>
+        </div>
+        <p class="fs-5">
+            {{endpoint.endpoint_description|linebreaksbr}}
+        </p>
+        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
+            <div class="col-11">http://{{ request.get_host}}{{endpoint.endpoint_url}}</div>
+            <div class="col-1"><i class='bx bx-clipboard copy-data'></i></div>
+        </div>
+    </div>
+    {% endfor %}
+    <!--End-Points Loop End-->
+
+
     
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">All Users (GET)</h2>
-        <p class="fs-5">This endpoint provides access to the data of all users stored in the database, returning a JSON response that includes key details for each user, such as their unique user ID, full name, email address, mobile number, city, and encrypted password. By making a request to this endpoint, you can retrieve a comprehensive list of all users in the database. This data can be used for various purposes, including user management and auditing. However, it is important to ensure that access to this endpoint is properly secured to protect sensitive information, such as passwords and personal contact details.</p>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/api/users</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">Filtered Users Data (GET)</h2>
-        <p class="fs-5">
-            This endpoint allows you to retrieve a filtered list of users based on specific criteria. You can specify any field, such as name, email, or mobile number, to filter the users accordingly. By providing the desired filter parameters in the request, the API will return a list of users that match the given conditions. This feature enables more targeted queries, making it easier to find users based on particular attributes. It is important to ensure that the filters are properly validated to prevent unnecessary data exposure.
-        </p>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/api/users/?city='Agra'</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">Specific User EndPoint (GET)</h2>
-        <p class="fs-5">
-            This endpoint provides detailed information about a specific user. By hitting the API and appending the user ID to the request, you will receive a JSON object containing the user's data, including their unique user ID, full name, email address, mobile number, and encrypted password. This allows you to retrieve specific information for individual users. It is important to ensure proper authentication and authorization when accessing this endpoint to protect the privacy and security of user data.
-        </p>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/api/users/2</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">User Post Endpoint</h2>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/docs</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">User Delete Endpoint</h2>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/docs</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">All Posts Endpoint</h2>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/docs</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-
     <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
         <h2 style="color:#fb5607">Add new Post Endpoint</h2>
         <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
@@ -103,17 +69,14 @@
             <div class="col-1"><i class='bx bx-clipboard'></i></div>
         </div>
     </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
 </div>
+
+<script>
+    clip_buttons = document.querySelectorAll('.copy-data')
+    clip_buttons.forEach((btn)=>{
+        btn.addEventListener('click',(e)=>{
+            navigator.clipboard.writeText(e.target.parentElement.previousSibling.previousSibling.textContent);
+        })
+    });
+</script>
 {% endblock content %}

@@ -1,0 +1,28 @@
+::selection {
+    color: black;
+    background: #8338ec;
+}
+.nav-link,.dropdown-item{
+    color:white !important;
+}
+.nav-link:hover,.dropdown-item:hover{
+    color: #8338ec !important;
+}
+.cstm-btn{
+    background-color: #8338ec !important;
+}
+.cstm-btn:hover{
+    box-shadow: 2px 2px 15px 15px #8338ec43, -2px -2px 15px 15px #8338ec43;
+}
+.code-snippet{
+    border: 2px solid #8338ec !important;
+    background-color: #8338ec27 !important;
+    border-radius: 8px;
+}
+.copy-data{
+    color: white;
+}
+.copy-data:active{
+    color:rgb(0, 255, 0) !important;
+    transform: rotate(30deg);
+}

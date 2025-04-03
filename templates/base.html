@@ -39,10 +39,21 @@
                 </ul>
               </li>
             </ul>
-            <form class="d-flex" role="search">
-              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
+
+            {% if request.user.is_authenticated %}
+              <button class="nav-item dropdown btn btn-sm register-login-btn me-4">
+                <a class="nav-link dropdown-toggle fs-5 action-dropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {{request.user}}
+                </a>
+                <ul class="dropdown-menu p-1 me-4">
+                  <li><a class="dropdown-item fs-5" href="#">Profile <i class='bx bx-user'></i></a></li>
+                  <li><a class="dropdown-item fs-5" href="{% url 'logout' %}">Logout <i class='bx bx-exit' ></i></a></li>
+                </ul>
+              </button>
+            {% else %}
+              <a href="{% url 'login' %}" class="btn btn-md register-login-btn me-4">Login</a>
+            {% endif %}
+
           </div>
         </div>
       </nav>

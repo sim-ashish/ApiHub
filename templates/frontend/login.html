@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}ApiHub | Login{% endblock title %}
+
+{% block content %}
+<div class="container-fluid d-flex justify-content-center align-items-center" style="height:90vh;background-color: black;">
+    <div class="row p-4" style="border-radius: 8px;background-color: rgb(39, 39, 39);">
+        <h2>ApiHub | Login</h2>
+        <div class="col-12">
+            <form action="" method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <input type="submit" class="btn btn-md register-login-btn" value="Login">
+            </form>
+        </div>
+    </div>
+</div>
+    {% endblock content %}

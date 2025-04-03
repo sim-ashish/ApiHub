@@ -24,9 +24,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-o9stx#&k3(q9gp7h9y5(7b6d*^$2)_9ymn$tp!drh=(smpr$af'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+
+
+MAINTENANCE_MODE = False   # add by me
+
+
+BANNED_IPS = [
+    # '127.0.0.1'
+]
 
 
 # Application definition
@@ -41,10 +49,16 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'cloudinary',
     'rest_framework',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'api',
     'frontend',
     'django_filters'            # to perform api filter
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,6 +68,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'frontend.middleware.MaintenanceMiddleware',                # Custom MiddleWare
+    'frontend.middleware.IPBlacklistMiddleware',                # Custom MiddleWare
+    'frontend.middleware.LoggingMiddleware',                    # Custome MiddleWare
 ]
 
 ROOT_URLCONF = 'ApiHub.urls'
@@ -169,4 +186,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ######################################## Rest framework settings ################################################
 # REST_FRAMEWORK = {
 #     'DEFAULT_FILTER_BACKENDS' : ['django_filters.rest_framework.DjangoFilterBackend']
+# }
+
+
+# REST_FRAMEWORK = {
+#  'SEARCH_PARAM':'contain'                 # To override 'search' word in Search Filter
 # }

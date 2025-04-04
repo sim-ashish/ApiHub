@@ -68,9 +68,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'frontend.middleware.MaintenanceMiddleware',                # Custom MiddleWare
+    #'frontend.middleware.MaintenanceMiddleware',                # Custom MiddleWare
     'frontend.middleware.IPBlacklistMiddleware',                # Custom MiddleWare
-    'frontend.middleware.LoggingMiddleware',                    # Custome MiddleWare
+    #'frontend.middleware.LoggingMiddleware',                    # Custome MiddleWare
 ]
 
 ROOT_URLCONF = 'ApiHub.urls'
@@ -192,3 +192,31 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # REST_FRAMEWORK = {
 #  'SEARCH_PARAM':'contain'                 # To override 'search' word in Search Filter
 # }
+
+
+### Authentication and Permission ###
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # It Should be List
+    ],
+    'DEFAULT_PERMISSION_CLASSES' : ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+    'DEFAULT_THROTTLE_CLASSES':[
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES':{
+        'anon':'2/day',
+        'user':'5/day',   # second, minute, hour or day
+        'subUser':'10/day'      # Custom Throttle
+    }
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME' : timedelta(minutes = 30),
+    'REFRESH_TOKEN_LIFETIME' : timedelta(days = 1),
+    'ROTATE_REFRESH_TOKENS' : False,
+    'BLACKLIST_AFTER_ROTATION' : False,
+    'AUTH_HEADER_TYPES' : ('Bearer',)
+}

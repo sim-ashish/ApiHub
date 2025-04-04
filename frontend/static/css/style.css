@@ -7,12 +7,17 @@
 }
 .nav-link:hover,.dropdown-item:hover{
     color: #8338ec !important;
+    background-color:rgb(43, 48, 53);
 }
 .action-dropdown:hover{
     color: white !important;
 }
 .cstm-btn, .register-login-btn{
     background-color: #8338ec !important;
+}
+.register-login-btn a{
+    color: white;
+    text-decoration: none;
 }
 
 .cstm-btn:hover{

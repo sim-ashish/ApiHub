@@ -71,6 +71,7 @@ class IPBlacklistMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        print("**********User*******", request.user)
         print("Request's IP : ", request.META['REMOTE_ADDR'])
         if hasattr(settings, 'BANNED_IPS') and settings.BANNED_IPS is not None:
             if request.META['REMOTE_ADDR'] in settings.BANNED_IPS:

@@ -8,11 +8,12 @@
     <div class="row p-4" style="border-radius: 8px;background-color: rgb(39, 39, 39);">
         <h2>ApiHub | Login</h2>
         <div class="col-12">
-            <form action="" method="post">
+            <form action="" method="post" class="mb-3">
                 {% csrf_token %}
                 {{ form|crispy }}
                 <input type="submit" class="btn btn-md register-login-btn" value="Login">
             </form>
+            <a href="{% url 'register' %}">New User? Register Here</a>
         </div>
     </div>
 </div>

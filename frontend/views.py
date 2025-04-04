@@ -15,8 +15,13 @@ def index(request):
     return render(request, 'frontend/index.html')
 
 def docs(request):
-    endpoints = EndPoint.objects.all()
+    endpoints = EndPoint.objects.all().order_by('id')
     return render(request, 'frontend/docs.html', {"endpoints" : endpoints})
+
+
+@login_required
+def profile(request):
+    return render(request, 'frontend/profile.html')
 
 
 def User_register(request):

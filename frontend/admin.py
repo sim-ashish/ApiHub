@@ -5,4 +5,4 @@ from .models import *
 
 @admin.register(EndPoint)
 class AdminEndPoint(admin.ModelAdmin):
-    list_display = ['endpoint_name']
+    list_display = ['id','endpoint_name']

@@ -28,54 +28,21 @@
     {% endfor %}
     <!--End-Points Loop End-->
 
-
-    
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">Add new Post Endpoint</h2>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/docs</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">Delete a Post Endpoint</h2>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/docs</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">Async Websocket EndPoint</h2>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/docs</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">Sync Websocket EndPoint</h2>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/docs</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-
-    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
-        <h2 style="color:#fb5607">User Update Endpoint</h2>
-        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://127.0.0.1:8000/docs</div>
-            <div class="col-1"><i class='bx bx-clipboard'></i></div>
-        </div>
-    </div>
-</div>
-
 <script>
     clip_buttons = document.querySelectorAll('.copy-data')
     clip_buttons.forEach((btn)=>{
         btn.addEventListener('click',(e)=>{
             navigator.clipboard.writeText(e.target.parentElement.previousSibling.previousSibling.textContent);
+            Swal.fire({
+                position: 'bottom-end', // Bottom-right position
+                icon: 'success', // Toast icon type
+                title: 'Api Copied',
+                width : '200px',
+                height : '50px',
+                showConfirmButton: false, // No need for a confirm button
+                timer: 800 // Toast duration
+            });
+            
         })
     });
 </script>

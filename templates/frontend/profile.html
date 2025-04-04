@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ApiHub | Profile{% endblock title %}
+
+{% block content %}
+<div class="container-fluid" style="height:90vh;background-color: black;">
+    <div class="row pt-4 h-100">
+        <div class="col-4 m-auto">
+            <form id="TokenForm" class="code-snippet p-3 mb-4">
+                <h2>ApiHub | Get Token</h2>
+                <hr>
+            <div class="mb-3">
+              <label for="user-name" class="form-label">User Name</label>
+              <input type="text" name="username" class="form-control" id="user-name" value="{{request.user.username}}" aria-describedby="emailHelp">
+            </div>
+            <div class="mb-3">
+              <label for="pass-word" class="form-label">Password</label>
+              <input type="password" name="password" class="form-control" id="pass-word">
+            </div>
+            <button type="submit" class="btn btn-md register-login-btn">Generate Token</button>
+          </form>
+
+          <form id="RefreshTokenForm" class="code-snippet p-3 mt-4">
+            <h2>ApiHub | Refresh Token</h2>
+            <hr>
+        <div class="mb-3">
+          <label for="refresh" class="form-label">Refresh Token</label>
+          <input type="text" name="refresh" class="form-control" id="refresh" aria-describedby="emailHelp">
+        </div>
+        <button type="submit" class="btn btn-md register-login-btn">Refresh Token</button>
+      </form>
+
+        </div>
+        <div class="col-4 container d-flex flex-column justify-content-evenly align-items-center m-auto">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <img src="{% static 'images/pngwing.com.png' %}" alt="" style="width:250px; height:250px;">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 d-flex justify-content-around">
+                    <button class="btn btn-sm me-2 btn-primary">Change Password</button><button class="btn btn-sm ms-2 btn-danger">Delete Account</button>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-12">
+                    <textarea id="output-display" class="form-control" style="resize: none;width:40vw;height:40vh;">You can get Your JWT Tokens Using Post-man, by hitting 'http://127.0.0.1:8000/gettoken/' with data "username" and password. 
+Also You can Get your tokens by filling the Side form!!!
+                    </textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+        let outputDisplay = document.getElementById('output-display')
+        document.getElementById('TokenForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let username = document.getElementById('user-name').value;
+        let password = document.getElementById('pass-word').value;
+        
+        fetch('http://127.0.0.1:8000/api/gettoken/', {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify({ username: username,password : password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            outputDisplay.innerText = `{"access" : "${data.access}",
+                                        "refresh" : "${data.refresh}"}`;
+                                        document.getElementById('pass-word').value = ''
+        })
+        .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('RefreshTokenForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let refreshToken = document.getElementById('refresh').value;
+        
+        fetch('http://127.0.0.1:8000/api/refreshtoken/', {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify({ refresh: refreshToken })
+        })
+        .then(response => response.json())
+        .then(data => {
+            outputDisplay.innerText = `{"access" : "${data.access}"}`;
+            document.getElementById('refresh').value = ''
+        })
+        .catch(error => console.error('Error:', error));
+        });
+        
+</script>
+{% endblock content %}

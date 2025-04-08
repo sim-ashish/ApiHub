@@ -51,3 +51,44 @@ class Cloth(models.Model):
     cloth_material = models.ForeignKey(ClothMaterial, on_delete=models.SET_NULL, null=True, related_name='clothmaterial')
     cloth_name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=8, decimal_places=2) 
+
+
+
+
+################################################# Custom Api #################################################
+
+class CustomApi(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    endpoint = models.SlugField(unique=True)
+    success_response = models.JSONField()
+    error_response = models.JSONField()
+    validations = models.JSONField(default=dict, blank=True)
+    public = models.BooleanField(default=True)
+
+'''
+{
+"name" : "Age Checker",
+"endpoint" : "agecheck",
+"success_response" : {"message" : "Valid age!"},
+"error_response" : {"message" : "Invalid age!"},
+"validations":{
+        "age" : {"type" : "int", "min" : 18, "max" : 65},
+        "name" : {"type" : "str"}
+    },
+"public" : true
+}
+'''
+
+
+class HitLog(models.Model):
+    api = models.ForeignKey(CustomApi, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    request_data = models.JSONField(null=True, blank=True)
+    returned_status = models.IntegerField()
+
+
+class APIData(models.Model):
+    api = models.ForeignKey(CustomApi, on_delete=models.CASCADE)
+    data = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)

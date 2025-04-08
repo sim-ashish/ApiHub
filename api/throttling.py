@@ -22,6 +22,7 @@ class CustomThrottle(BaseThrottle):
         return self.get_ident(request)
 
     def get_rate_limit(self,request):
+        # print("JWT Token User : ", self.request.user)
         """Return the rate limit based on user type."""
         auth_header = request.headers.get('Authorization')
         token = None

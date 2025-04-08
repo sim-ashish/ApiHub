@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ApiHub | CustomApi{% endblock title %}
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row">
+        <div class="col-12 p-4">
+            <p class="fs-4 doc-info">
+                Welcome to ApiHub, a platform where you can discover and integrate various APIs for your projects. (This Feature is For Our subscribers Only).<br>
+                Create Your Custom Api's, define your own structure of api as well as define validations on the object fields.<br>
+                Define you endpoint, and all the endpoints are unique.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 text-center">
+            <img src="{% static 'images/custom.png' %}" alt="">
+        </div>
+    </div>
+
+
+    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
+        <div>
+            <h2 style="color:#fb5607; display:inline;">Create API (POST, GET)</h2>
+            <span class="badge text-bg-success">Success : 201</span>
+            <span class="badge text-bg-danger">Error : 400, 415, 422</span>
+        </div>
+        <p class="fs-5">
+            Create Your Custom Api, required fields are name of you api, endpoint of your api, validations contain your class fields and validations on them, and a public flag to make api private or public(default).
+        </p>
+        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
+            <div class="col-11"><pre>{
+                "name" : "Age Checker",
+                "endpoint" : "agecheck",
+                "success_response" : {"message" : "Valid age!"},
+                "error_response" : {"message" : "Invalid age!"},
+                "validations":{
+                        "age" : {"type" : "int", "min" : 18, "max" : 65},
+                        "name" : {"type" : "str"}
+                    },
+                "public" : true
+                }</pre>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
+        <div>
+            <h2 style="color:#fb5607; display:inline;">Post Data and Get Data from your end points (POST, GET)</h2>
+            <span class="badge text-bg-success">Success : 201, 200</span>
+            <span class="badge text-bg-danger">Error : 400, 404, 415, 422</span>
+        </div>
+        <p class="fs-5">
+            Now you can Use your api, post data on api, get data through api. Each data validated through your custom validations. We provide a lot of validations to include in your fields.
+            <br>
+            Your url for api should be '/api/endpoint/{Your End Point Name}/'  
+        </p>
+        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
+            <div class="col-11"><pre>{
+                "age" : 20,
+                "name" : "Ashish",
+                }</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2 ps-5 pe-5 alert alert-secondary">
+        <div>
+            <h2 style="color:#fb5607; display:inline;">Fields and Validations</h2>
+        </div>
+        <p class="fs-5">
+            Create your Own Custom Fields and their type of validations<br>
+            To create fields write your fields inside validation parameter and their validation in the a dictionary or object format, remeber to declare the type of field also<br>
+            Data Types of fields are integer, decimal, string, boolean<br>
+            Types of Validations : For integer and decimal -> type, min, max
+            Types of Validations : For string -> type, min_length, max_length, regex 
+        </p>
+        <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
+            <div class="col-12">
+    <pre>{"validations" : {"height" : {"type" : "integer", "min" : 165, "max" : 175},
+                             "password" : {"type" : "string", "min_length" : 8, "max_length" : 20, "regex" : "^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$" },
+                             "indian" : {"type" : "boolean"}
+                            }
+    }</pre>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

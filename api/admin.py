@@ -36,3 +36,19 @@ class AdminClothMaterial(admin.ModelAdmin):
 @admin.register(Cloth)
 class AdminCloth(admin.ModelAdmin):
     list_display = ['cloth_name', 'cloth_category', 'cloth_material']
+
+
+@admin.register(CustomApi)
+class AdminCustomApi(admin.ModelAdmin):
+    list_display = ['name', 'endpoint']
+
+
+@admin.register(HitLog)
+class AdminHitLog(admin.ModelAdmin):
+    list_display = ['api', 'timestamp']
+
+
+@admin.register(APIData)
+class AdminAPIData(admin.ModelAdmin):
+    list_display = ['id', 'api']
+

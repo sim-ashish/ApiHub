@@ -19,6 +19,9 @@ def docs(request):
     endpoints = EndPoint.objects.all().order_by('id')
     return render(request, 'frontend/docs.html', {"endpoints" : endpoints})
 
+def custom_docs(request):
+    return render(request, 'frontend/customapi.html')
+
 
 @login_required
 def profile(request):

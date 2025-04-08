@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApiHub | Subscription</title>
+    <style>
+        body{
+            background-color: #121212;
+        }
+        .container{
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        input[type="submit"]{
+            background-color: #8338ec;
+            border: none;
+            padding: 1vh 2vw;
+            font-size: 1.5vw;
+            color: white;
+            border-radius: 8px;
+        }
+        input[type="submit"]:hover{
+            cursor: pointer;
+            box-shadow: 5px 5px 10px 10px #9c56ff24, -5px -5px 10px 10px #9c56ff24, -5px 5px 10px 10px #9c56ff24, 5px -5px 10px 10px #9c56ff24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form action="" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="user-id" value="{{user.id}}">
+            <input type="submit" value="Subscribe / Go to Payment">
+        </form>
+    </div>
+</body>
+</html>

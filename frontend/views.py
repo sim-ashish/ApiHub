@@ -1,17 +1,18 @@
 from django.shortcuts import render, redirect
 from .models import *
+from api.models import Subscription
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from .forms import UserRegisterForm
 from django.contrib.auth.decorators import login_required
-
-# Create your views here.
+from ApiHub.celery import Showmsg
+from ApiHub.mail_send import mail
 
 
 def index(request):
     host = request.get_host()
-    print("Host : ", host)
     return render(request, 'frontend/index.html')
 
 def docs(request):
@@ -59,3 +60,15 @@ def User_login(request):
 def User_logout(request):
     logout(request)
     return redirect('/')
+
+def subscription_payment(request, uID):
+    if request.method == 'GET':
+        user = User.objects.get(id = uID)
+        return render(request, 'frontend/subscription.html', locals())
+    else:
+        userId = request.POST.get('user-id')
+        print("Userid : ", userId)
+        user = User.objects.get(id = userId)
+        Subscription.objects.create(user = user)
+        return render(request, 'frontend/sub-done.html')
+        

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'cloudinary',
     'rest_framework',
+    'rest_framework_simplejwt',
     'crispy_forms',
     'crispy_bootstrap5',
     'api',
@@ -69,7 +70,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'frontend.middleware.MaintenanceMiddleware',                # Custom MiddleWare
-    'frontend.middleware.IPBlacklistMiddleware',                # Custom MiddleWare
+    #'frontend.middleware.IPBlacklistMiddleware',                # Custom MiddleWare
     #'frontend.middleware.LoggingMiddleware',                    # Custome MiddleWare
 ]
 
@@ -153,7 +154,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -180,9 +181,29 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CACHE Configuration
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        }
+    }
+}
+
+# EMAIL Configuration
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'krushanuinfolabz@gmail.com'
+EMAIL_HOST_PASSWORD = 'pjobvjckluqrtojl'
 
 
-##################################################################################################################
+
+
 ######################################## Rest framework settings ################################################
 # REST_FRAMEWORK = {
 #     'DEFAULT_FILTER_BACKENDS' : ['django_filters.rest_framework.DjangoFilterBackend']
@@ -200,15 +221,15 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',  # It Should be List
     ],
     'DEFAULT_PERMISSION_CLASSES' : ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
-    'DEFAULT_THROTTLE_CLASSES':[
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
-    ],
-    'DEFAULT_THROTTLE_RATES':{
-        'anon':'2/day',
-        'user':'5/day',   # second, minute, hour or day
-        'subUser':'10/day'      # Custom Throttle
-    }
+    # 'DEFAULT_THROTTLE_CLASSES':[
+    #     'rest_framework.throttling.AnonRateThrottle',
+    #     'rest_framework.throttling.UserRateThrottle'
+    # ],
+    # 'DEFAULT_THROTTLE_RATES':{
+    #     'anon':'2/day',
+    #     'user':'5/day',   # second, minute, hour or day
+    #     'subUser':'10/day'      # Custom Throttle
+    # }
 }
 
 from datetime import timedelta
@@ -220,3 +241,20 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION' : False,
     'AUTH_HEADER_TYPES' : ('Bearer',)
 }
+
+
+## Celery Settings
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"              # Or 'django-db'
+CELERY_TIMEZONE = 'Asia/Kolkata'
+
+## Celery Beat
+
+# CELERY_BEAT_SCHEDULE = {
+#     'ClearUp' : {
+#         'task' : 'frontend.tasks.Showmsg',
+#         'schedule' : 10,
+#         'args' :('1111',)
+#     },
+#     # add more tasks
+# }

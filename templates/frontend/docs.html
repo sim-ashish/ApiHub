@@ -21,7 +21,9 @@
             {{endpoint.endpoint_description|linebreaksbr}}
         </p>
         <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
-            <div class="col-11">http://{{ request.get_host}}{{endpoint.endpoint_url}}</div>
+            <!-- <div class="col-11">http://{{ request.get_host}}{{endpoint.endpoint_url}}</div> -->
+            <div class="col-11"><span class="window-host"></span>{{endpoint.endpoint_url}}</div>
+
             <div class="col-1"><i class='bx bx-clipboard copy-data'></i></div>
         </div>
     </div>
@@ -30,6 +32,11 @@
 
 <script>
     clip_buttons = document.querySelectorAll('.copy-data')
+    host_address = document.querySelectorAll('.window-host')
+    host_address.forEach((address)=>{
+        address.innerText = window.location.host
+    })
+
     clip_buttons.forEach((btn)=>{
         btn.addEventListener('click',(e)=>{
             navigator.clipboard.writeText(e.target.parentElement.previousSibling.previousSibling.textContent);

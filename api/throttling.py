@@ -9,6 +9,7 @@ from django.core.cache import cache
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth.models import User
 from api.tasks import subscription_mail
+from rest_framework.permissions import IsAuthenticated
 
 
 class CustomThrottle(BaseThrottle):
@@ -22,6 +23,8 @@ class CustomThrottle(BaseThrottle):
         return self.get_ident(request)
 
     def get_rate_limit(self,request):
+        if IsAuthenticated:
+            print("Authenticated User : ", request.user)
         # print("JWT Token User : ", self.request.user)
         """Return the rate limit based on user type."""
         auth_header = request.headers.get('Authorization')
@@ -93,7 +96,7 @@ class CustomThrottle(BaseThrottle):
 
         # If authenticated user exceeds the limit, send an email notification
         if user and cache_value['count'] >= self.RATE_LIMITS['authenticated']:
-            subscription_mail.delay('krushanuinfolabz@gmail.com', user.email)
+            subscription_mail.delay('krushanuinfolabz@gmail.com', user.email, user.id)
 
         # If exceeded the rate limit, throttle the request
         raise Throttled(detail=f"Rate limit exceeded: {rate_limit} requests per day.")

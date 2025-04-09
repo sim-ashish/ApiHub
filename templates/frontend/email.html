@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .email-header {
+            background-color: #8338ec;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            color: white;
+        }
+
+        .email-content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .email-button {
+            display: inline-block;
+            padding: 12px 25px;
+            margin-top: 20px;
+            background-color: #8338ec;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .email-button:hover {
+            background-color: #2980b9;
+        }
+
+        .email-footer {
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 10px;
+            border-radius: 0 0 8px 8px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                padding: 10px;
+            }
+            .email-button {
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>Welcome to ApiHub</h1>
+        </div>
+        <div class="email-content">
+            <p>Hi there,</p>
+            <p>We are excited to have you on board. To get started, click the button below:</p>
+            <a href="{{ link }}" class="email-button">Start Now</a>
+        </div>
+        <div class="email-footer">
+            <p>If you have any questions, feel free to reach out to us.</p>
+            <p>Best regards, <br> The Team</p>
+        </div>
+    </div>
+</body>
+</html>

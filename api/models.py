@@ -58,6 +58,7 @@ class Cloth(models.Model):
 ################################################# Custom Api #################################################
 
 class CustomApi(models.Model):
+    auto_id = models.BigIntegerField(default = 1)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     endpoint = models.SlugField(unique=True)
@@ -65,6 +66,10 @@ class CustomApi(models.Model):
     error_response = models.JSONField()
     validations = models.JSONField(default=dict, blank=True)
     public = models.BooleanField(default=True)
+
+
+    def __str__(self):
+        return str(self.endpoint)
 
 '''
 {
@@ -87,8 +92,14 @@ class HitLog(models.Model):
     request_data = models.JSONField(null=True, blank=True)
     returned_status = models.IntegerField()
 
+    # def __str__(self):
+    #     return self.api
+
 
 class APIData(models.Model):
     api = models.ForeignKey(CustomApi, on_delete=models.CASCADE)
     data = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    # def __str__(self):
+    #     return self.api

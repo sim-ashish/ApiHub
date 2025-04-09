@@ -11,8 +11,10 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
+from django.core.cache import cache
 import re
 import json
+from django_redis import get_redis_connection
 
 class UserCrud(viewsets.ModelViewSet):
     '''Class To perform CRUD api operations on CustomUser Model'''
@@ -57,22 +59,32 @@ class CustomAPIViewSet(viewsets.ModelViewSet):
 
 
 class DynamicApiHandler(APIView):
-    permission_classes = [IsAuthenticated]  # You can customize permissions here
+    permission_classes = [IsAuthenticated] 
 
     def get(self, request, endpoint, data_id=None):
         try:
             custom_api = CustomApi.objects.get(endpoint=endpoint)
         except CustomApi.DoesNotExist:
             return Response({"error": "Endpoint not found"}, status=status.HTTP_404_NOT_FOUND)
-
+        
         if data_id:
             try:
-                record = APIData.objects.get(api=custom_api, id=data_id)
-                return Response(record.data)
+                # record = APIData.objects.get(api=custom_api, id=data_id)
+                # serializer = APIDataSerializer(record)
+                # return Response(serializer.data, status = status.HTTP_200_OK)
+                record = APIData.objects.get(api=custom_api, data__id = data_id)
+                return Response(record.data, status = status.HTTP_200_OK)
+            
             except APIData.DoesNotExist:
                 return Response({"error": "Data not found for this ID"}, status=status.HTTP_404_NOT_FOUND)
         else:
-            records = APIData.objects.filter(api=custom_api).order_by('-created_at')
+            records = APIData.objects.filter(api=custom_api).order_by('created_at')
+            # print(records.values('data'))
+            # records = APIData.objects.filter(api=custom_api, data__id = 1).order_by('-created_at')
+            # print("QUERY RESULT", records.values('data'))
+
+            # serializer = APIDataSerializer(records, many=True)
+            # return Response(serializer.data, status = status.HTTP_200_OK)
             return Response({"data": [r.data for r in records]}, status = status.HTTP_200_OK)
 
     def post(self, request, endpoint):
@@ -82,11 +94,19 @@ class DynamicApiHandler(APIView):
             return Response({"error": "Endpoint not found"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
-            data = request.data  # DRF automatically parses JSON
+            data = request.data             # DRF automatically parses JSON
+            print("DATA : ", data)
         except Exception:
             return Response({"error": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST)
-
+        
         validations = custom_api.validations or {}
+
+        api_fields = set(validations.keys())
+        data_fields = set(data.keys())
+
+        if len(data_fields - api_fields) != 0:
+                return Response({"error": f'{data_fields - api_fields}, is/are extra fields'}, status=status.HTTP_400_BAD_REQUEST)
+
         for field, rules in validations.items():
             if not rules.get("optional") and field not in data:
                 return Response({"error": f"Missing required field: {field}"}, status=status.HTTP_400_BAD_REQUEST)
@@ -124,6 +144,36 @@ class DynamicApiHandler(APIView):
                     if not isinstance(value, bool):
                         return Response({"error": f"{field} must be a Boolean"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Save data if valid
+        # Getting id to uniquely identify data from redis or db, if validation success!!
+        api_id = cache.get(str(endpoint), None)
+        if api_id is None:
+            api_id = int(custom_api.auto_id)
+            cache.set(str(endpoint), api_id, timeout= 60 * 60 *24)      # storing for 24 hrs
+
+        # # Save data if valid
+        data['id'] = api_id
         APIData.objects.create(api=custom_api, data=data)
+        cache.set(str(endpoint), api_id + 1, timeout= 60 * 60 *24)            # Increasing the id for that specific endpoint
         return Response(custom_api.success_response, status=status.HTTP_201_CREATED)
+    
+    def put(self, request, endpoint, data_id=None): 
+        pass
+  
+    def patch(self, request, endpoint, data_id=None): 
+        pass
+          
+    def delete(self, request, endpoint, data_id=None): 
+        try:
+            custom_api = CustomApi.objects.get(endpoint=endpoint)
+        except CustomApi.DoesNotExist:
+            return Response({"error": "Endpoint not found"}, status=status.HTTP_404_NOT_FOUND)
+        if data_id:
+            try:
+                record = APIData.objects.get(api=custom_api, data__id = data_id)
+                record.delete()
+                return Response(custom_api.success_response, status = status.HTTP_204_NO_CONTENT)
+            
+            except APIData.DoesNotExist:
+                return Response(custom_api.error_response, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"error": "Method Not Allowed!"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)

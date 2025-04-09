@@ -1,64 +1,68 @@
 from celery import shared_task
 from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django_redis import get_redis_connection
+
 
 @shared_task
-def subscription_mail(sender_mail, to_mail):
-    subject, from_email, to = 'Limit Exceed', sender_mail, to_mail
-    text_content = 'Your Api Limit Exceeded'
-    html_content = html_content = f'''<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subscription</title>
-    <style>
-        *{{
-            margin: 0;
-            padding: 0;
-        }}
-        .container{{
-            width: 60%;
-            margin: auto;
-        }}
-        h1{{
-            text-align: center;
-            font-size: 6vw;
-            margin-bottom: 5vh;
-        }}
-        p{{
-            font-size: 1vw;
-        }}
-        @media only screen and (max-width: 800px) {{
-            .container{{
-                width: 80%;
-                margin: auto;
-            }}
-            p{{
-                font-size: 2.5vw;
-            }}
-        }}
-        @media only screen and (max-width: 600px) {{
-            .container{{
-                width: 98%;
-                margin: auto;
-            }}
-            p{{
-                font-size: 2.5vw;
-            }}
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Limit Exceeded</h1>
-        <p>Your Daily Limit for API hits has been consumed. You can access more tomorrow, or to get more hits, buy our subscription from the link below:<br>
-        <a href="http://127.0.0.1:8000/subscribe/1">Buy Subscription</a>
-        </p>
-    </div>
-</body>
-</html>'''
-
-    
+def subscription_mail(sender_mail, to_mail, uId):
+    html_content = render_to_string('frontend/email.html', {'link' : f'http://127.0.0.1:8000/subscribe/{uId}'})
+    text_content = strip_tags(html_content)
+    subject, from_email, to = 'Limit Exceeded', sender_mail, to_mail
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-    msg.attach_alternative(html_content, "text/html")
+    msg.content_subtype = "html"
     msg.send()
+
+
+
+########### Redis TO Databse id transfer Schedules task #########################
+
+def redis_task():
+        # Connect to Redis
+        r = get_redis_connection("default")
+
+        # Define the key prefix
+        key_prefix = 'your_prefix:*'
+
+        # Initialize the cursor
+        cursor = 0
+
+        # List to store the keys
+        keys = []
+
+        # Iterate through the keys
+        while True:
+            cursor, new_keys = r.scan(cursor=cursor, match=key_prefix)
+            keys.extend(new_keys)
+            if cursor == 0:
+                break
+
+        # Fetch all the data for the keys
+        data = {key: r.get(key) for key in keys}
+
+        print(data)
+
+
+        '''Start
+        r = get_redis_connection("default")
+        key_prefix = ':1:demo1*'
+        cursor = 0
+
+        # List to store the keys
+        keys = []
+
+        # Iterate through the keys
+        while True:
+            cursor, new_keys = r.scan(cursor=cursor, match=key_prefix)
+            keys.extend(new_keys)
+            if cursor == 0:
+                break
+
+        # Fetch all the data for the keys
+        data = {key: r.get(key) for key in keys}
+        li = list(data.keys())
+        # print("Redis KEYYYYY : ",li[0].decode('utf-8'))   This will work
+        # print("Redis KEYYYYY : ",data.decode('utf-8'))   not work 
+
+        End'''

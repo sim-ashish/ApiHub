@@ -237,11 +237,13 @@ class DynamicApiHandler(APIView):
 from rest_framework.generics import CreateAPIView
 
 from rest_framework import generics
+
+from rest_framework.permissions import AllowAny
 # Create
 class MockView(generics.ListCreateAPIView):
     queryset = MockData.objects.all()
     serializer_class = MockSerializer
-
+    # permission_classes = [AllowAny]
     def perform_create(self, serializer):
         serializer.save()
 

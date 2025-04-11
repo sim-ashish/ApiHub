@@ -94,7 +94,7 @@ class DynamicApiHandler(APIView):
             return Response({"error": "Endpoint not found"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
-            data = request.data             # DRF automatically parses JSON
+            data = request.data           
             print("DATA : ", data)
         except Exception:
             return Response({"error": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST)

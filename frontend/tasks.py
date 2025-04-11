@@ -144,8 +144,9 @@ def welcome_mail(sender_mail, to_mail, link='http://127.0.0.1:8000'):
 def security_mail(sender_mail, to_mail, link = 'http://127.0.0.1:8000'):
     html_content = render_to_string('frontend/security.html', {'link' : link})
     print("************Mail Send for Security Reason*********")
-    text_content = strip_tags(html_content)
+    text_content = html_content
     subject, from_email, to = 'Security Alert', sender_mail, to_mail
-    msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+    msg = EmailMultiAlternatives(subject,text_content, from_email, [to])
     msg.content_subtype = "html"
+    msg.attach_alternative(html_content, "text/html")
     msg.send()

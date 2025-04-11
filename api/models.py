@@ -103,3 +103,26 @@ class APIData(models.Model):
 
     # def __str__(self):
     #     return self.api
+
+
+
+
+############################################# Mock Api############################################
+class MockApi(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    mockapi = models.SlugField(unique=True)
+    header = models.JSONField(default = dict, null=True)
+    response_msg = models.JSONField(null=True)
+    response_code = models.IntegerField(null=True)
+
+
+    def __str__(self):
+        return f'MOCK : {self.mockapi}'
+    
+class QueryMockData(models.Model):
+    mock = models.ForeignKey(MockApi, on_delete=models.CASCADE)
+    query_params = models.JSONField(default=dict,null=True)
+    header = models.JSONField(default = dict, null=True)
+    response_msg = models.JSONField(null=True)
+    response_code = models.IntegerField(null=True)

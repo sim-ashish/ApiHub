@@ -40,8 +40,6 @@ class LoggingMiddleware:
 
         logger.info(response_dict)
 
-        
-        
         return response
 
 class MaintenanceMiddleware:

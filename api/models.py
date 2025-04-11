@@ -108,21 +108,21 @@ class APIData(models.Model):
 
 
 ############################################# Mock Api############################################
-class MockApi(models.Model):
+class Mock(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    mockapi = models.SlugField(unique=True)
-    header = models.JSONField(default = dict, null=True)
-    response_msg = models.JSONField(null=True)
-    response_code = models.IntegerField(null=True)
+    name = models.CharField(max_length=128)
+    mock_endpoint = models.SlugField(unique=True)
 
 
-    def __str__(self):
-        return f'MOCK : {self.mockapi}'
-    
-class QueryMockData(models.Model):
-    mock = models.ForeignKey(MockApi, on_delete=models.CASCADE)
-    query_params = models.JSONField(default=dict,null=True)
-    header = models.JSONField(default = dict, null=True)
-    response_msg = models.JSONField(null=True)
-    response_code = models.IntegerField(null=True)
+class MockData(models.Model):
+    api = models.ForeignKey(Mock, on_delete=models.CASCADE)
+    method = models.CharField(max_length=10, choices = [('GET', 'GET'),('POST','POST'),('PUT','PUT'),('PATCH', 'PATCH'),('DELETE', 'DELETE')])
+    body = models.JSONField(default=dict, null=True)
+    response_header = models.JSONField(null=True)
+    response_msg = models.JSONField()
+    response_code = models.IntegerField(choices = [(100, 100), (101, 101), (102, 102), (103, 103),(200, 200), (201, 201), (202, 202), (203, 203), (204, 204), (205, 205), (206, 206),(207, 207), (208, 208), (226, 226),(300, 300), (301, 301), (302, 302), (303, 303), (304, 304), (305, 305), (306, 306),(307, 307), (308, 308),(400, 400), (401, 401), (402, 402), (403, 403), (404, 404), (405, 405), (406, 406),(407, 407), (408, 408), (409, 409), (410, 410), (411, 411), (412, 412), (413, 413),(414, 414), (415, 415), (416, 416), (417, 417), (418, 418), (421, 421), (422, 422),(423, 423), (424, 424), (425, 425), (426, 426), (428, 428), (429, 429),(431, 431), (451, 451),(500, 500), (501, 501), (502, 502), (503, 503), (504, 504), (505, 505), (506, 506),(507, 507), (508, 508), (510, 510), (511, 511)])
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['api', 'method','body'], name='unique_user_post')
+        ]

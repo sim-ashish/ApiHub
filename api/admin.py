@@ -52,3 +52,12 @@ class AdminHitLog(admin.ModelAdmin):
 class AdminAPIData(admin.ModelAdmin):
     list_display = ['id', 'api']
 
+
+
+@admin.register(Mock)
+class AdminMock(admin.ModelAdmin):
+    list_display = ['id', 'name']
+
+@admin.register(MockData)
+class AdminMockData(admin.ModelAdmin):
+    list_display = ['id', 'method']

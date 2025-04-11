@@ -245,6 +245,10 @@ REST_FRAMEWORK = {
     #     'user':'5/day',   # second, minute, hour or day
     #     'subUser':'10/day'      # Custom Throttle
     # }
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
 }
 
 from datetime import timedelta

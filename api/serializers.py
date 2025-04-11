@@ -45,3 +45,46 @@ class HitLogSerializer(serializers.ModelSerializer):
 
 class APIDataSerializer(serializers.Serializer):
     data = serializers.JSONField()
+
+
+
+# class MockSerializer(serializers.ModelSerializer):
+#     name = serializers.CharField(max_length = 128, source='api.name')
+#     mock_endpoint = serializers.SlugField(source='api.mock_endpoint')
+
+#     class Meta:
+#         model = MockData
+#         fields = ['name','mock_endpoint','method','body','response_header','response_msg','response_code']
+
+#     def create(self, **validate):
+#         self.super().create()
+
+class MockSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=128, source='api.name')
+    mock_endpoint = serializers.SlugField(source='api.mock_endpoint')
+    method = serializers.ChoiceField(choices=MockData._meta.get_field('method').choices)
+    body = serializers.JSONField(required=False)
+    response_header = serializers.JSONField(required=False)
+    response_msg = serializers.JSONField()
+    response_code = serializers.ChoiceField(choices=MockData._meta.get_field('response_code').choices)
+
+    class Meta:
+        model = MockData
+        fields = ['name', 'mock_endpoint', 'method', 'body', 'response_header', 'response_msg', 'response_code']
+        # fields = '__all__'
+
+
+    def create(self, validated_data):
+        api_data = validated_data.pop('api')  # Extract api fields (name, mock_endpoint)
+        user = self.context['request'].user  # Assuming you have access to request context
+
+        mock_obj, created = Mock.objects.get_or_create(
+            user=user,
+            name=api_data['name'],
+            mock_endpoint=api_data['mock_endpoint']
+        )
+
+        mock_data = MockData.objects.create(api=mock_obj, **validated_data)
+        return mock_data
+    
+

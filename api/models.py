@@ -1,13 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+# Subscription Model
 
 class Subscription(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_subscriber = models.BooleanField(default=False)
 
 
-# Users
+# Users and posts
+
 class CustomUser(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -23,6 +25,7 @@ class Post(models.Model):
 
 
 # Food Models
+
 class FoodCategory(models.Model):
     category = models.CharField(max_length=100)
 
@@ -54,8 +57,7 @@ class Cloth(models.Model):
 
 
 
-
-################################################# Custom Api #################################################
+# Custom Api
 
 class CustomApi(models.Model):
     auto_id = models.BigIntegerField(default = 1)
@@ -92,8 +94,6 @@ class HitLog(models.Model):
     request_data = models.JSONField(null=True, blank=True)
     returned_status = models.IntegerField()
 
-    # def __str__(self):
-    #     return self.api
 
 
 class APIData(models.Model):
@@ -101,17 +101,14 @@ class APIData(models.Model):
     data = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # def __str__(self):
-    #     return self.api
 
+# Mock Api
 
-
-
-############################################# Mock Api############################################
 class Mock(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
     mock_endpoint = models.SlugField(unique=True)
+    public_access = models.BooleanField(default=True)
 
 
 class MockData(models.Model):

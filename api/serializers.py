@@ -63,6 +63,7 @@ class APIDataSerializer(serializers.Serializer):
 class MockSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=128, source='api.name')
     mock_endpoint = serializers.SlugField(source='api.mock_endpoint')
+    public_access = serializers.BooleanField(source='api.public_access', write_only = True)
     method = serializers.ChoiceField(choices=MockData._meta.get_field('method').choices)
     body = serializers.JSONField(required=False)
     response_header = serializers.JSONField(required=False)
@@ -71,7 +72,7 @@ class MockSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MockData
-        fields = ['name', 'mock_endpoint', 'method', 'body', 'response_header', 'response_msg', 'response_code']
+        fields = ['name', 'mock_endpoint','public_access', 'method', 'body', 'response_header', 'response_msg', 'response_code']
 
 
     def create(self, validated_data):
@@ -83,10 +84,12 @@ class MockSerializer(serializers.ModelSerializer):
             mock_obj, created = Mock.objects.get_or_create(
                 user=user,
                 name=api_data['name'],
-                mock_endpoint=api_data['mock_endpoint']
+                mock_endpoint=api_data['mock_endpoint'],
+                public_access = api_data['public_access']
             )
         except:
             raise ValidationError("Endpoint Already Exist")
+        
         body = validated_data.get('body')
         method = validated_data.get('method')
         if MockData.objects.filter(api=mock_obj, body=body, method=method).exists():

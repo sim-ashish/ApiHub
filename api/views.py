@@ -3,11 +3,12 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .serializers import *
 from .models import *
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from api.throttling import CustomThrottle
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
@@ -22,11 +23,10 @@ class UserCrud(viewsets.ModelViewSet):
 
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    # throttle_classes = [AnonRateThrottle, UserRateThrottle]
     # throttle_classes = [CustomThrottle]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['name', 'city']         # To filter via name and city, http://127.0.0.1:8000/api/user/?name=Victor%20Brown&city=Bokaro
-    # filterset_fields = ['city']               # http://127.0.0.1:8000/api/user/?city=Birmingham
+    filterset_fields = ['name', 'city']         
+         
 
 
 class POSTCrud(viewsets.ModelViewSet):
@@ -36,13 +36,12 @@ class POSTCrud(viewsets.ModelViewSet):
     # throttle_classes = [AnonRateThrottle, UserRateThrottle]
     throttle_classes = [CustomThrottle]
     filter_backends = [SearchFilter, DjangoFilterBackend]
-    filterset_fields = ['id', 'user']    # To filter via id or userid, http://127.0.0.1:8000/api/user/?user=1
-    search_fields = ['id', '$content']         # To filter via name or city, http://127.0.0.1:8000/api/user/?search=3    , http://127.0.0.1:8000/api/post/?search=nature
-    # search_fields = ['^content']   # Content starts with, = exact match, $ regex
+    filterset_fields = ['id', 'user']    
+    search_fields = ['id', '$content']           
 
 
 
-################################### Custom Api Views ############################
+# Custom Api Views
 
 class CustomAPIViewSet(viewsets.ModelViewSet):
     '''Class To create and show Custom Api's with name , endpoint, status_codes and validations'''
@@ -70,9 +69,6 @@ class DynamicApiHandler(APIView):
         
         if data_id:
             try:
-                # record = APIData.objects.get(api=custom_api, id=data_id)
-                # serializer = APIDataSerializer(record)
-                # return Response(serializer.data, status = status.HTTP_200_OK)
                 record = APIData.objects.get(api=custom_api, data__id = data_id)
                 return Response(record.data, status = status.HTTP_200_OK)
             
@@ -80,12 +76,6 @@ class DynamicApiHandler(APIView):
                 return Response({"error": "Data not found for this ID"}, status=status.HTTP_404_NOT_FOUND)
         else:
             records = APIData.objects.filter(api=custom_api).order_by('created_at')
-            # print(records.values('data'))
-            # records = APIData.objects.filter(api=custom_api, data__id = 1).order_by('-created_at')
-            # print("QUERY RESULT", records.values('data'))
-
-            # serializer = APIDataSerializer(records, many=True)
-            # return Response(serializer.data, status = status.HTTP_200_OK)
             return Response({"data": [r.data for r in records]}, status = status.HTTP_200_OK)
 
     def post(self, request, endpoint):
@@ -96,7 +86,6 @@ class DynamicApiHandler(APIView):
 
         try:
             data = request.data          
-            # print("DATA : ", data)
         except Exception:
             return Response({"error": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -181,245 +170,79 @@ class DynamicApiHandler(APIView):
         
 
 
-############################################ Mock Api ########################################
+# Mock Api Views
 
-# class MockHandlerView(APIView):
-#     def get(self, request, mockapi):
-#         try:
-#             mock_api = MockApi.objects.get(mockapi)
-#         except MockApi.DoesNotExist:
-#             return Response({"error" : "End-point not founc"}, status=status.HTTP_404_NOT_FOUND)
-        
-#     def post(self, request, mockapi):
-#         try:
-#             mock_api = MockApi.objects.get(mockapi)
-#         except MockApi.DoesNotExist:
-#             return Response({"error" : "End-point not founc"}, status=status.HTTP_404_NOT_FOUND)
-
-#     def put(self, request, mockapi):
-#         try:
-#             mock_api = MockApi.objects.get(mockapi)
-#         except MockApi.DoesNotExist:
-#             return Response({"error" : "End-point not founc"}, status=status.HTTP_404_NOT_FOUND)
-
-#     def patch(self, request, mockapi):
-#         try:
-#             mock_api = MockApi.objects.get(mockapi)
-#         except MockApi.DoesNotExist:
-#             return Response({"error" : "End-point not founc"}, status=status.HTTP_404_NOT_FOUND)
-
-#     def delete(self, request, mockapi):
-#         try:
-#             mock_api = MockApi.objects.get(mockapi)
-#         except MockApi.DoesNotExist:
-#             return Response({"error" : "End-point not founc"}, status=status.HTTP_404_NOT_FOUND)
-        
-
-
-# class MockView(ListCreateAPIView):
-#     queryset = MockData.objects.all()
-#     serializer_class = MockSerializer
-
-
-
-##########MOCK################
-# from rest_framework.generics import (
-#     CreateAPIView, ListAPIView, RetrieveAPIView,
-#     UpdateAPIView, DestroyAPIView
-# )
-# from rest_framework.permissions import IsAuthenticated
-# from .models import MockData
-# from .serializers import MockSerializer
-
-
-
-
-from rest_framework.generics import CreateAPIView
-
-from rest_framework import generics
-
-from rest_framework.permissions import AllowAny
-# Create
-class MockView(generics.ListCreateAPIView):
-    queryset = MockData.objects.all()
+class MockView(ListCreateAPIView):
     serializer_class = MockSerializer
-    # permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
     def perform_create(self, serializer):
         serializer.save()
 
-    # def get_queryset(self):
-    #     return MockData.objects.filter(api__user=self.request.user)
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return MockData.objects.filter(Q(api__public_access = True) | Q(api__user = self.request.user))
+        return MockData.objects.filter(api__public_access = True)
+
+
+class MockHandlerView(APIView):
+    def get(self, request, mockapi):
+        try:
+            mock_api = Mock.objects.get(mock_endpoint = mockapi)
+        except Mock.DoesNotExist:
+            return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
+        if request.GET():
+            query_params_dict = request.GET.dict()
+            # query_params_json = json.dumps(query_params_dict)
+            try:
+                mock_data = MockData.objects.get(api = mock_api, method = request.method, body = query_params_dict)
+            except:
+                return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
+            response = Response(mock_data.response_msg, status = mock_data.response_code)
+            return response
+        else:
+            try:
+                mock_data = MockData.objects.get(api = mock_api, method = request.method, body__isnull = True)
+            except:
+                return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
+            response = Response(mock_data.response_msg, status = mock_data.response_code)
+            return response
+        
+    def post(self, request, mockapi):
+        try:
+            mock_api = Mock.objects.get(mock_endpoint = mockapi)
+        except Mock.DoesNotExist:
+            return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
+        if request.data:
+            try:
+                mock_data = MockData.objects.get(api = mock_api, method = request.method, body = request.data)
+            except:
+                return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+            response = Response(mock_data.response_msg, status = mock_data.response_code)
+            return response
+        else:
+            try:
+                mock_data = MockData.objects.get(api = mock_api, method = request.method, body__isnull = True)
+            except:
+                return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
+            response = Response(mock_data.response_msg, status = mock_data.response_code)
+            return response
+
+    # def put(self, request, mockapi):
+    #     try:
+    #         mock_api = Mock.objects.get(mock_endpoint = mockapi)
+    #     except Mock.DoesNotExist:
+    #         return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # def patch(self, request, mockapi):
+    #     try:
+    #         mock_api = Mock.objects.get(mock_endpoint = mockapi)
+    #     except Mock.DoesNotExist:
+    #         return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # def delete(self, request, mockapi):
+    #     try:
+    #         mock_api = Mock.objects.get(mock_endpoint = mockapi)
+    #     except Mock.DoesNotExist:
+    #         return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# List
-# class MockDataListView(ListAPIView):
-#     serializer_class = MockSerializer
-#     permission_classes = [IsAuthenticated]
-
-#     def get_queryset(self):
-#         # Only list mock data for the logged-in user's mocks
-#         return MockData.objects.filter(api__user=self.request.user)
-
-# # Retrieve
-# class MockDataDetailView(RetrieveAPIView):
-#     queryset = MockData.objects.all()
-#     serializer_class = MockSerializer
-#     permission_classes = [IsAuthenticated]
-
-#     def get_queryset(self):
-#         return MockData.objects.filter(api__user=self.request.user)
-
-# # Update
-# class MockDataUpdateView(UpdateAPIView):
-#     queryset = MockData.objects.all()
-#     serializer_class = MockSerializer
-#     permission_classes = [IsAuthenticated]
-
-#     def get_queryset(self):
-#         return MockData.objects.filter(api__user=self.request.user)
-
-# # Delete
-# class MockDataDeleteView(DestroyAPIView):
-#     queryset = MockData.objects.all()
-#     serializer_class = MockSerializer
-#     permission_classes = [IsAuthenticated]
-
-#     def get_queryset(self):
-#         return MockData.objects.filter(api__user=self.request.user)
-
-
-
-# ###########urls ################
-# from django.urls import path
-# from .views import (
-#     MockDataCreateView, MockDataListView, MockDataDetailView,
-#     MockDataUpdateView, MockDataDeleteView
-# )
-
-# urlpatterns = [
-#     path('mock/create/', MockDataCreateView.as_view(), name='mock-create'),
-#     path('mock/', MockDataListView.as_view(), name='mock-list'),
-#     path('mock/<int:pk>/', MockDataDetailView.as_view(), name='mock-detail'),
-#     path('mock/<int:pk>/update/', MockDataUpdateView.as_view(), name='mock-update'),
-#     path('mock/<int:pk>/delete/', MockDataDeleteView.as_view(), name='mock-delete'),
-# ]

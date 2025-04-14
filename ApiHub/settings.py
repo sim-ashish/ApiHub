@@ -16,16 +16,10 @@ import os
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 EXCEL_PATH = BASE_DIR / 'api'
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-o9stx#&k3(q9gp7h9y5(7b6d*^$2)_9ymn$tp!drh=(smpr$af'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -34,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
-MAINTENANCE_MODE = False   # add by me
+MAINTENANCE_MODE = False  
 
 
 BANNED_IPS = [
@@ -59,7 +53,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'api',
     'frontend',
-    'django_filters'            # to perform api filter
+    'django_filters'
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -76,7 +70,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'frontend.middleware.MaintenanceMiddleware',                # Custom MiddleWare
     #'frontend.middleware.IPBlacklistMiddleware',                # Custom MiddleWare
-    'frontend.middleware.LoggingMiddleware',                    # Custom MiddleWare
+    # 'frontend.middleware.LoggingMiddleware',                    # Custom MiddleWare
 ]
 
 ROOT_URLCONF = 'ApiHub.urls'
@@ -100,17 +94,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ApiHub.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
 
 
 load_dotenv()
@@ -128,8 +111,6 @@ DATABASES = {
 
 
 
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -147,8 +128,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -158,9 +137,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
@@ -174,10 +150,9 @@ CLOUDINARY_STORAGE = {
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # CACHE Configuration
 CACHES = {
@@ -202,37 +177,13 @@ EMAIL_HOST_PASSWORD = 'pjobvjckluqrtojl'
 
 
 
+# Authentication and Permission
 
-######################################## Rest framework settings ################################################
-# REST_FRAMEWORK = {
-#     'DEFAULT_FILTER_BACKENDS' : ['django_filters.rest_framework.DjangoFilterBackend']
-# }
-
-
-# REST_FRAMEWORK = {
-#  'SEARCH_PARAM':'contain'                 # To override 'search' word in Search Filter
-# }
-
-
-### Authentication and Permission ###
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # It Should be List
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    'DEFAULT_PERMISSION_CLASSES' : ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
-    # 'DEFAULT_THROTTLE_CLASSES':[
-    #     'rest_framework.throttling.AnonRateThrottle',
-    #     'rest_framework.throttling.UserRateThrottle'
-    # ],
-    # 'DEFAULT_THROTTLE_RATES':{
-    #     'anon':'2/day',
-    #     'user':'5/day',   # second, minute, hour or day
-    #     'subUser':'10/day'      # Custom Throttle
-    # }
-    # 'DEFAULT_RENDERER_CLASSES': [
-    #     'rest_framework.renderers.JSONRenderer',
-    #     'rest_framework.renderers.BrowsableAPIRenderer',
-    # ],
+    # 'DEFAULT_PERMISSION_CLASSES' : ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
 }
 
 from datetime import timedelta
@@ -246,21 +197,12 @@ SIMPLE_JWT = {
 }
 
 
-## Celery Settings
+# Celery Settings
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"              # Or 'django-db'
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 CELERY_TIMEZONE = 'Asia/Kolkata'
 
-## Celery Beat
-
-# CELERY_BEAT_SCHEDULE = {
-#     'ClearUp' : {
-#         'task' : 'frontend.tasks.Showmsg',
-#         'schedule' : 10,
-#         'args' :('1111',)
-#     },
-#     # add more tasks
-# }
+# Celery Beat
 
 CELERY_BEAT_SCHEDULE = {
     'LogGenerator' : {

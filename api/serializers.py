@@ -72,18 +72,21 @@ class MockSerializer(serializers.ModelSerializer):
     class Meta:
         model = MockData
         fields = ['name', 'mock_endpoint', 'method', 'body', 'response_header', 'response_msg', 'response_code']
-        # fields = '__all__'
 
 
     def create(self, validated_data):
+        print(validated_data)
         api_data = validated_data.pop('api')  # Extract api fields (name, mock_endpoint)
         user = self.context['request'].user  # Assuming you have access to request context
 
-        mock_obj, created = Mock.objects.get_or_create(
-            user=user,
-            name=api_data['name'],
-            mock_endpoint=api_data['mock_endpoint']
-        )
+        try:
+            mock_obj, created = Mock.objects.get_or_create(
+                user=user,
+                name=api_data['name'],
+                mock_endpoint=api_data['mock_endpoint']
+            )
+        except:
+            raise ValidationError("Endpoint Already Exist")
         body = validated_data.get('body')
         method = validated_data.get('method')
         if MockData.objects.filter(api=mock_obj, body=body, method=method).exists():

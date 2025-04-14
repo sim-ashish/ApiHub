@@ -126,3 +126,14 @@ class MockData(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['api', 'method','body'], name='unique_user_post')
         ]
+
+
+
+# Monitoring
+
+class Request_logs(models.Model):
+    req_user = models.CharField(max_length=15)
+    req_method = models.CharField(max_length=10)
+    endpoint = models.CharField(max_length=256)
+    ip_address = models.CharField(max_length=20)
+    request_time = models.DateTimeField(auto_now_add=True)

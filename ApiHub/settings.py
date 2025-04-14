@@ -12,9 +12,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import cloudinary_storage 
+import os
+from dotenv import load_dotenv
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+EXCEL_PATH = BASE_DIR / 'api'
 
 
 # Quick-start development settings - unsuitable for production
@@ -71,7 +76,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'frontend.middleware.MaintenanceMiddleware',                # Custom MiddleWare
     #'frontend.middleware.IPBlacklistMiddleware',                # Custom MiddleWare
-    #'frontend.middleware.LoggingMiddleware',                    # Custome MiddleWare
+    'frontend.middleware.LoggingMiddleware',                    # Custom MiddleWare
 ]
 
 ROOT_URLCONF = 'ApiHub.urls'
@@ -108,28 +113,7 @@ WSGI_APPLICATION = 'ApiHub.wsgi.application'
 
 
 
-# Add these at the top of your settings.py
-import os
-from dotenv import load_dotenv
-from urllib.parse import urlparse
-
 load_dotenv()
-
-# Replace the DATABASES section of your settings.py with this
-# tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': tmpPostgres.path.replace('/', ''),
-#         'USER': tmpPostgres.username,
-#         'PASSWORD': tmpPostgres.password,
-#         'HOST': tmpPostgres.hostname,
-#         'PORT': 5432,
-#     }
-# }
-
-
 
 DATABASES = {
     'default': {
@@ -277,3 +261,10 @@ CELERY_TIMEZONE = 'Asia/Kolkata'
 #     },
 #     # add more tasks
 # }
+
+CELERY_BEAT_SCHEDULE = {
+    'LogGenerator' : {
+        'task' : 'api.tasks.generate_log',
+        'schedule' : timedelta(days = 10),
+    }
+}

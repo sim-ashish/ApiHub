@@ -3,6 +3,12 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django_redis import get_redis_connection
+import csv
+from api.models import Request_logs
+from django.utils import timezone
+import os
+from openpyxl import load_workbook
+from django.conf import settings
 
 
 @shared_task
@@ -66,3 +72,43 @@ def redis_task():
         # print("Redis KEYYYYY : ",data.decode('utf-8'))   not work 
 
         End'''
+
+
+############## Logging File Generator ##########################
+
+@shared_task
+def generate_log():
+    upto_date = timezone.now() - timezone.timedelta(days=10)
+    filtered_data = Request_logs.objects.filter(request_time__lte=timezone.now())
+    
+    if filtered_data:
+        new_data = filtered_data.values_list('req_user', 'req_method', 'endpoint', 'ip_address', 'request_time')
+        
+        # Convert request_time to string using strftime() after getting the data
+        formatted_data = []
+        for row in new_data:
+            formatted_row = list(row)
+            formatted_row[4] = formatted_row[4].strftime('%Y-%m-%d %H:%M:%S')  
+            formatted_data.append(tuple(formatted_row))
+        
+        # excel_file =os.path.join(settings.EXCEL_PATH, 'Logging.xlsx')
+        # wb = load_workbook(excel_file)
+        # ws = wb.active
+        
+        # for row in formatted_data:
+        #     ws.append(row)
+        
+        # wb.save(excel_file)
+        # filtered_data.delete()
+
+        csv_file_path = os.path.join(settings.EXCEL_PATH, 'Logging.csv')
+        with open(csv_file_path, mode='a', newline='') as file:
+            # Create a csv.writer object
+            writer = csv.writer(file)
+            # Write data to the CSV file
+            writer.writerows(formatted_data)
+            filtered_data.delete()
+    
+    return "Log file Generated"
+
+

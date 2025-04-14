@@ -4,6 +4,8 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.core.cache import cache
+from django.db import connection
+from rest_framework_simplejwt.tokens import AccessToken
 
 
 
@@ -28,6 +30,29 @@ class LoggingMiddleware:
             'path':request.path
         }
         logger.info(request_data)
+
+
+        # Calling a Procedure
+        if request.path.startswith("/api"):
+            auth_header = request.headers.get('Authorization')
+            token = None
+            if auth_header:
+                token = auth_header.split(" ")[1]
+
+            with connection.cursor() as cursor:
+                if request.user is not None and str(request.user) != 'AnonymousUser':
+                    print(str(request.user))
+                    print(type(request.user))
+                    # cursor.callproc('log_api_request',[str(request.user), str(request.method), str(request.path), str(request.META.get('REMOTE_ADDR'))])
+                    cursor.execute("CALL log_api_request(%s, %s, %s, %s)", [str(request.user.id), str(request.method), str(request.path), str(request.META.get('REMOTE_ADDR'))])
+
+                else:
+                    if token is not None:
+                        access_token_obj = AccessToken(token)
+                        cursor.execute("CALL log_api_request(%s, %s, %s, %s)", [str(access_token_obj['user_id']), str(request.method), str(request.path), str(request.META.get('REMOTE_ADDR'))])
+                    else:
+                        #cursor.callproc('log_api_request',['Anonymous', str(request.method), str(request.path), str(request.META.get('REMOTE_ADDR'))])
+                        cursor.execute("CALL log_api_request(%s, %s, %s, %s)", ['Anonymous', str(request.method), str(request.path), str(request.META.get('REMOTE_ADDR'))])
 
         response = self.get_response(request)
 

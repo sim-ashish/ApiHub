@@ -9,6 +9,8 @@ from django.utils import timezone
 import os
 from openpyxl import load_workbook
 from django.conf import settings
+from django.core.cache import cache
+from api.models import CustomApi
 
 
 @shared_task
@@ -23,15 +25,10 @@ def subscription_mail(sender_mail, to_mail, uId):
 
 
 ########### Redis TO Databse id transfer Schedules task #########################
-
+@shared_task
 def redis_task():
-        # Connect to Redis
         r = get_redis_connection("default")
-
-        # Define the key prefix
-        key_prefix = 'your_prefix:*'
-
-        # Initialize the cursor
+        key_prefix = ':1:key*'
         cursor = 0
 
         # List to store the keys
@@ -43,35 +40,16 @@ def redis_task():
             keys.extend(new_keys)
             if cursor == 0:
                 break
-
-        # Fetch all the data for the keys
-        data = {key: r.get(key) for key in keys}
-
-        print(data)
-
-
-        '''Start
-        r = get_redis_connection("default")
-        key_prefix = ':1:demo1*'
-        cursor = 0
-
-        # List to store the keys
-        keys = []
-
-        # Iterate through the keys
-        while True:
-            cursor, new_keys = r.scan(cursor=cursor, match=key_prefix)
-            keys.extend(new_keys)
-            if cursor == 0:
-                break
-
-        # Fetch all the data for the keys
-        data = {key: r.get(key) for key in keys}
-        li = list(data.keys())
-        # print("Redis KEYYYYY : ",li[0].decode('utf-8'))   This will work
-        # print("Redis KEYYYYY : ",data.decode('utf-8'))   not work 
-
-        End'''
+        if len(keys) > 0:
+            for key in keys:
+                print("Redis KEYYYYY : ",key.decode('utf-8'))
+                decoded_key = str(key.decode('utf-8'))
+                cache_key = decoded_key[3:]
+                endpoint = decoded_key[7:]
+                custom = CustomApi.objects.get(endpoint = endpoint)
+                custom.auto_id = cache.get(cache_key)
+                custom.save()
+                cache.delete(cache_key)
 
 
 ############## Logging File Generator ##########################
@@ -105,6 +83,7 @@ def generate_log():
         with open(csv_file_path, mode='a', newline='') as file:
             # Create a csv.writer object
             writer = csv.writer(file)
+
             # Write data to the CSV file
             writer.writerows(formatted_data)
             filtered_data.delete()

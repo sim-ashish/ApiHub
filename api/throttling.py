@@ -15,18 +15,17 @@ from rest_framework.permissions import IsAuthenticated
 class CustomThrottle(BaseThrottle):
     # Defining throttling limits
     RATE_LIMITS = {
-        'anonymous': 5,  # 5 requests/day for anonymous users
-        'authenticated': 8,  # 8 requests/day for authenticated users
-        'subscribed': 15,  # 15 requests/day for subscribers
+        'anonymous': 30,  # 30 requests/day for anonymous users
+        'authenticated': 80,  # 80 requests/day for authenticated users
+        'subscribed': 1000,  # 1000 requests/day for subscribers
     }
     def get_cache_key(self, request, view):
+        '''Returns unique ip address'''
         return self.get_ident(request)
 
     def get_rate_limit(self,request):
-        # if IsAuthenticated:
-        #     print("Authenticated User : ", request.user)
-        # print("JWT Token User : ", self.request.user)
         """Return the rate limit based on user type."""
+
         auth_header = request.headers.get('Authorization')
         token = None
         if auth_header:
@@ -66,12 +65,8 @@ class CustomThrottle(BaseThrottle):
                 raise Exception
         except:
             user = None
-        # user = request.user if request.user.is_authenticated else None
+        
         key = self.get_cache_key(request, view)
-
-        # If no cache key exists (first request), allow the request
-        # if not key:
-        #     return True
 
         # Get the throttle limit based on the user
         rate_limit = self.get_rate_limit(request)

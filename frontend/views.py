@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import *
+from api.models import Mock, MockData
 from api.models import Subscription
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -21,6 +22,12 @@ def docs(request):
 
 def custom_docs(request):
     return render(request, 'frontend/customapi.html')
+
+
+@login_required
+def mock_view(request):
+    mocks = MockData.objects.filter(api__user = request.user).select_related('api')
+    return render(request, 'frontend/mock.html', {"mocks" : mocks})
 
 
 @login_required

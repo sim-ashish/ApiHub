@@ -66,6 +66,7 @@ class LoggingMiddleware:
         logger.info(response_dict)
 
         return response
+    
 
 class MaintenanceMiddleware:
     def __init__(self, get_response):

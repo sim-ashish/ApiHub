@@ -1,12 +1,22 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from .models import *
+from django.contrib.auth.models import User
 import re
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
     class Meta:
         model = CustomUser
-        fields = ['id', 'name', 'email', 'mobile', 'city', 'password']
+        fields = ['id', 'name', 'email', 'mobile', 'city', 'password', 'created_by']
+        extra_kwargs = {
+            'created_by': {'required': True},
+        }
+    
+    def create(self, validated_data):
+        user = validated_data.pop('created_by') 
+        custom_user = CustomUser.objects.create(created_by=user, **validated_data)
+        return custom_user
 
     def validate_password(self, value):
         if not re.match("^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$", value):
@@ -22,12 +32,80 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return value
 
 
-
-
 class PostModelSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
     class Meta:
         model = Post
-        fields = ['id', 'user', 'content', 'image']
+        fields = ['id', 'user', 'content', 'image', 'created_by']
+        extra_kwargs = {
+                    'created_by': {'required': True},
+                }
+        
+    def create(self, validated_data):
+        user = validated_data.pop('created_by')
+        post = Post.objects.create(created_by=user, **validated_data)
+        return post
+
+
+class FoodCategoriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FoodCategory
+        fields = ['id', 'category']
+
+
+class FoodItemsSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
+    class Meta:
+        model = FoodItem
+        fields = ['id', 'category', 'food_name', 'food_price', 'created_by']
+        extra_kwargs = {
+                    'created_by': {'required': True},
+                }
+
+    def create(self, validated_data):
+        user = validated_data.pop('created_by')
+        food_item = FoodItem.objects.create(created_by=user, **validated_data)
+        return food_item
+    
+class FoodOrderSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
+    class Meta:
+        fields = ['id', 'user', 'food_item', 'total_price', 'order_time', 'created_by']
+        extra_kwargs = {
+                    'created_by': {'required': True},
+                }
+    
+    def create(self, validated_data):
+        user = validated_data.pop('created_by')
+        food_order = FoodOrders.objects.create(created_by=user, **validated_data)
+        return food_order
+
+
+class FashionCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FashionCategory
+        fields = ['id', 'category']
+
+
+class MaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClothMaterial
+        fields = ['id', 'material_name']
+
+
+class ClothSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
+    class Meta:
+        model = Cloth
+        fields = ['id', 'cloth_category', 'cloth_material', 'cloth_name', 'price', 'created_by']
+        extra_kwargs = {
+                    'created_by': {'required': True},
+                }
+    
+    def create(self, validated_data):
+        user = validated_data.pop('created_by')
+        cloth = Cloth.objects.create(created_by=user, **validated_data)
+        return cloth
 
 
 
@@ -36,6 +114,11 @@ class CustomApiSerializer(serializers.ModelSerializer):
         model = CustomApi
         fields = '__all__'
 
+    def create(self, validated_data):
+        user = validated_data.pop('user')
+        cloth = CustomApi.objects.create(user=user, **validated_data)
+        return cloth
+
 
 class HitLogSerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,22 +126,10 @@ class HitLogSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
 class APIDataSerializer(serializers.Serializer):
     data = serializers.JSONField()
 
 
-
-# class MockSerializer(serializers.ModelSerializer):
-#     name = serializers.CharField(max_length = 128, source='api.name')
-#     mock_endpoint = serializers.SlugField(source='api.mock_endpoint')
-
-#     class Meta:
-#         model = MockData
-#         fields = ['name','mock_endpoint','method','body','response_header','response_msg','response_code']
-
-#     def create(self, **validate):
-#         self.super().create()
 
 class MockSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=128, source='api.name')
@@ -77,6 +148,7 @@ class MockSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         print(validated_data)
+        print("JWT : ",self.context['request'].user)
         api_data = validated_data.pop('api')  # Extract api fields (name, mock_endpoint)
         user = self.context['request'].user  # Assuming you have access to request context
 
@@ -98,38 +170,3 @@ class MockSerializer(serializers.ModelSerializer):
         mock_data = MockData.objects.create(api=mock_obj, **validated_data)
         return mock_data
     
-
-# class MockSerializer(serializers.ModelSerializer):
-#     name = serializers.CharField(max_length=128, source='api.name', read_only=True)
-#     mock_endpoint = serializers.SlugField(source='api.mock_endpoint', read_only=True)
-#     method = serializers.ChoiceField(choices=MockData._meta.get_field('method').choices)
-#     body = serializers.JSONField(required=False)
-#     response_header = serializers.JSONField(required=False)
-#     response_msg = serializers.JSONField()
-#     response_code = serializers.ChoiceField(choices=MockData._meta.get_field('response_code').choices)
-
-#     # Add these fields separately to accept input
-#     input_name = serializers.CharField(write_only=True)
-#     input_mock_endpoint = serializers.SlugField(write_only=True)
-
-#     class Meta:
-#         model = MockData
-#         fields = [
-#             'input_name', 'input_mock_endpoint',
-#             'name', 'mock_endpoint',
-#             'method', 'body', 'response_header', 'response_msg', 'response_code'
-#         ]
-
-#     def create(self, validated_data):
-#         input_name = validated_data.pop('input_name')
-#         input_mock_endpoint = validated_data.pop('input_mock_endpoint')
-#         user = self.context['request'].user
-
-#         mock_obj, created = Mock.objects.get_or_create(
-#             user=user,
-#             name=input_name,
-#             mock_endpoint=input_mock_endpoint
-#         )
-
-#         mock_data = MockData.objects.create(api=mock_obj, **validated_data)
-#         return mock_data

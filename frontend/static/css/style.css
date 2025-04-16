@@ -42,3 +42,30 @@
 .doc-info{
     font-family:'Titillium Web' !important;
 }
+
+.offcanva-btn{
+    background-color: rgb(115, 0, 255) !important;
+    padding: 0.6rem 0.3rem !important;
+    border-radius: 5px !important;
+    
+}
+.mock-list{
+    border: 1px solid grey !important;
+    height: 80vh !important;
+    overflow-y: auto !important;
+    border-radius: 8px !important;
+    box-shadow:-5px -5px 10px 10px rgba(0,0,0,1) !important;
+}
+.mock-btn{
+    padding: 0.3rem 0.5rem !important;
+    font-size: 120% !important;
+    background-color: #000000 !important;
+    border-radius: 8px !important;
+    border: 2px solid black !important;
+    transition: all 0.4s ease !important;
+}
+.mock-btn:hover{
+    border-color: #8338ec !important;
+    box-shadow: 1px 1px 5px 5px #8338ec3c;
+}
+

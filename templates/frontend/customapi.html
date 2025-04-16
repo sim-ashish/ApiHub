@@ -73,13 +73,13 @@
             Create your Own Custom Fields and their type of validations<br>
             To create fields write your fields inside validation parameter and their validation in the a dictionary or object format, remeber to declare the type of field also<br>
             Data Types of fields are integer, decimal, string, boolean<br>
-            Types of Validations : For integer and decimal -> type, min, max
-            Types of Validations : For string -> type, min_length, max_length, regex 
+            Types of Validations : For integer and decimal -> type, min, max<br>
+            Types of Validations : For string -> type, min_length, max_length, regex ("email"). For now regex only support "email".
         </p>
         <div class="col-8 container row code-snippet m-3 px-2 py-2 fs-4">
             <div class="col-12">
     <pre>{"validations" : {"height" : {"type" : "integer", "min" : 165, "max" : 175},
-                             "password" : {"type" : "string", "min_length" : 8, "max_length" : 20, "regex" : "^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$" },
+                             "password" : {"type" : "string", "min_length" : 8, "max_length" : 20, "regex" : "email" },
                              "indian" : {"type" : "boolean"}
                             }
     }</pre>

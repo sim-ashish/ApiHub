@@ -16,12 +16,15 @@ class CustomUser(models.Model):
     mobile = models.BigIntegerField()
     city = models.CharField(max_length=100)
     password = models.CharField(max_length=300)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
 
 class Post(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='posts')
     content = models.TextField()
     image = models.ImageField(upload_to='posts/')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
 
 
 # Food Models
@@ -33,12 +36,16 @@ class FoodItem(models.Model):
     category = models.ForeignKey(FoodCategory, on_delete=models.CASCADE, related_name='fooditem')
     food_name = models.CharField(max_length=200)
     food_price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
 
 class FoodOrders(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders')
     food_item = models.ForeignKey(FoodItem, on_delete=models.CASCADE, related_name='foodorder')
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     order_time = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
 
 
 # Ecommerce Models
@@ -54,6 +61,8 @@ class Cloth(models.Model):
     cloth_material = models.ForeignKey(ClothMaterial, on_delete=models.SET_NULL, null=True, related_name='clothmaterial')
     cloth_name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=8, decimal_places=2) 
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
 
 
 
@@ -87,6 +96,21 @@ class CustomApi(models.Model):
 }
 '''
 
+'''
+{
+"name" : "User Storage",
+"endpoint" : "users",
+"success_response" : {"success" : "Operation Successfull!"},
+"error_response" : {"error" : "Operation Failed!"},
+"validations":{
+        "age" : {"type" : "integer", "min" : 18, "max" : 65},
+        "name" : {"type" : "string"},
+        "email" : {"type" : "string", "regex" : "email"}
+    },
+"public" : true
+}
+'''
+
 
 class HitLog(models.Model):
     api = models.ForeignKey(CustomApi, on_delete=models.CASCADE)
@@ -112,7 +136,7 @@ class Mock(models.Model):
 
 
 class MockData(models.Model):
-    api = models.ForeignKey(Mock, on_delete=models.CASCADE)
+    api = models.ForeignKey(Mock, on_delete=models.CASCADE, related_name='mock')
     method = models.CharField(max_length=10, choices = [('GET', 'GET'),('POST','POST'),('PUT','PUT'),('PATCH', 'PATCH'),('DELETE', 'DELETE')])
     body = models.JSONField(default=dict, null=True)
     response_header = models.JSONField(null=True)

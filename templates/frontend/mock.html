@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ApiHub | Mock Api{% endblock title %}
+
+{% block content %}
+<div class="container-fluid pb-5">
+    <div class="row mt-2">
+          <div class="col-12"><h2 class="fs-1 text-center">Mock Api's</h2></div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-8 m-auto">
+            <form id="mock-form">
+                <div class="mb-3">
+                  <label for="name" class="form-label">Name *</label>
+                  <input type="text" class="form-control" id="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="mockpoint" class="form-label">Mock Endpoint *</label>
+                    <input type="text" class="form-control" id="mockpoint" aria-describedby="emailHelp" required>
+                    <div id="emailHelp" class="form-text">Your endpoint will be : /api/mock/<span id="mockpoint-text"></span>/</div>
+                </div>
+                <div class="mb-3">
+                    <label for="http-method" class="form-label">HTTP Method</label>
+                    <select id="http-method" class="form-control">
+                        <option value="GET" selected >GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="PATCH">PATCH</option>
+                        <option value="DELETE">DELETE</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="request-body" class="form-label">Request Body</label>
+                    <textarea  class="form-control" id="request-body" aria-describedby="emailHelp"></textarea>
+                    <div id="emailHelp" class="form-text">Write in Json form, it will match by query_params for Get, and body data for POST</div>
+                </div>
+                <div class="mb-3">
+                    <label for="response-header" class="form-label">Response Header</label>
+                    <textarea  class="form-control" id="response-header" aria-describedby="emailHelp"></textarea>
+                    <div id="emailHelp" class="form-text">Write in Json form</div>
+                </div>
+                <div class="mb-3">
+                    <label for="response-msg" class="form-label">Response Message *</label>
+                    <textarea  class="form-control" id="response-msg" aria-describedby="emailHelp" required></textarea>
+                    <div id="emailHelp" class="form-text">Write in Json form</div>
+                </div>
+                <div class="mb-3">
+                    <label for="response-code" class="form-label">Response Code *</label>
+                    <input type="number" min="100" max="512" class="form-control" id="response-code" aria-describedby="emailHelp" required>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" id="public">
+                  <label class="form-check-label" for="public">Public Access</label>
+                </div>
+                <button type="submit" class="btn cstm-btn mt-3">Create</button>
+              </form>
+
+        </div>
+        <div class="col-2 container mock-list p-3">
+            <h3>Your Mock Api's</h3>
+            <hr>
+            {% if mocks %}
+                {% for mock in mocks%}
+                <div class="row">
+                    <div class="col-12 mt-2 text-center">
+                        <button type="button" class="nav-link mock-btn" data-bs-toggle="modal" data-bs-target="#exampleModal{{mock.id}}">
+                           {% if mock.api.public_access %}
+                           <i class='bx bx-show-alt me-3'></i>
+                           {% else %}
+                           <i class='bx bx-hide me-3' ></i>
+                           {% endif %}
+                           {{mock.api.mock_endpoint}} <i class='bx bx-server'></i>
+                        </button>
+
+                        <!-- Modal -->
+                            <div class="modal fade" id="exampleModal{{mock.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">End Point : &nbsp;/api/mock/{{mock.api.mock_endpoint}}/</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                    <div class="text-start mb-2">Name : <input type="text" value="{{mock.api.name}}" disabled></div>
+                                    <div class="text-start mb-2">Endpoint : <input type="text" value="{{mock.api.mock_endpoint}}" disabled></div>
+                                    <div class="text-start mb-2">Method : <input type="text" value="{{mock.method}}" disabled></div>
+                                    <div class="text-start mb-2">Body : <input type="text" value="{{mock.body}}" disabled></div>
+                                    <div class="text-start mb-2">Response Headers : <input type="text" value="{{mock.response_header}}" disabled></div>
+                                    <div class="text-start mb-2">Response Message : <input type="text" value="{{mock.response_msg}}" disabled></div>
+                                    <div class="text-start mb-2">Response Code : <input type="text" value="{{mock.response_code}}" disabled></div>
+                                    <div class="text-start mb-2">Public : <input type="text" value="{{mock.api.public_access}}" disabled></div>
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        <!-- Modal -->
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                  <h4>You don't have mock api's.....<br>Create a new One !</h4>
+                {% endif%}
+            
+        </div>
+    </div> 
+</div>
+
+
+<script>
+    document.getElementById('mock-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    let name = document.getElementById('name').value;
+    let mock_endpoint = document.getElementById('mockpoint').value;
+    let method = document.getElementById('http-method').value;
+    let body = document.getElementById('request-body').value;
+    let response_header = document.getElementById('response-header').value;
+    let response_msg = document.getElementById('response-msg').value;
+    let response_code = document.getElementById('response-code').value;
+    let public_access = document.getElementById('public').checked;
+
+    let fetch_body = null
+
+    if(!body){
+        if(!response_header){
+            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
+        }
+        else{
+            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, response_header : JSON.parse(response_header), response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
+        }
+    }
+    else{
+        if(!response_header){
+            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, body : JSON.parse(body), response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
+        }
+        else{
+            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, body : JSON.parse(body), response_header : JSON.parse(response_header), response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
+        }
+    }
+    
+    console.log(fetch_body)
+    
+    fetch('http://127.0.0.1:8000/api/mock/', {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization" : "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ0NzE2NTQ3LCJpYXQiOjE3NDQ3MTQ3NDcsImp0aSI6IjQzYjBhNTBlMmNmNDRhZjlhZjc0MzFkOGY5OWViNWUxIiwidXNlcl9pZCI6MX0.5F7zcmW8s0fuTCoG2T-vBnLj1U5ydV_0egPFeZYcE6I"
+        },
+        method: "POST",
+        body: fetch_body
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.fire({
+            title: "Mock Created!",
+            icon: "success",
+            draggable: false
+        });
+    })
+    .catch(error =>{
+        Swal.fire({
+            title: "Something Went Wrong",
+            icon: "error",
+            draggable: false
+        });
+    });
+    });
+
+</script>
+{% endblock content %}

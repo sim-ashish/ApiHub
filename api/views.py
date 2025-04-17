@@ -295,8 +295,6 @@ class DynamicApiHandler(APIView):
                 return Response({"error": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST)
             
 
-
-
         else:
             return Response({"error": "Required an lookup id"}, status=status.HTTP_400_BAD_REQUEST)
           

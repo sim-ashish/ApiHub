@@ -68,6 +68,8 @@ Also You can Get your tokens by filling the Side form!!!
         })
         .then(response => response.json())
         .then(data => {
+            localStorage.setItem('access', data.access)
+            localStorage.setItem('refresh', data.refresh)
             outputDisplay.innerText = `{"access" : "${data.access}",
                                         "refresh" : "${data.refresh}"}`;
                                         document.getElementById('pass-word').value = ''

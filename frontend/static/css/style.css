@@ -2,6 +2,9 @@
 *{
     font-family: MuseoModerno !important;
 }
+body{
+    overflow-x: hidden !important;
+}
 ::selection {
     color: black;
     background: #8338ec;
@@ -69,3 +72,44 @@
     box-shadow: 1px 1px 5px 5px #8338ec3c;
 }
 
+
+/*Popup*/
+
+#pop-up{
+    position: absolute;
+    top: 50%;
+    left: 50%; 
+    transform: translate(-50%, -50%);
+    z-index: 99999;
+    background-color: rgba(88, 88, 88, 0.599);
+    border-radius: 5px;
+    border: 1px solid black;
+    padding: 1rem;
+    
+}
+
+.pop-up-hide{
+    display: none;
+}
+
+#token-generator{
+    width: max-content;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    background-color: black;
+    border: 2px solid black;
+    z-index: 100000;
+}
+
+#close-btn{
+    background-color: rgb(255, 44, 44);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    padding: 0 .5rem;
+    border-radius: 8px;
+}
+
+.pop-up-show{
+    display: block;
+}

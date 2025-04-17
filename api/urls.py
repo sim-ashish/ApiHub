@@ -14,7 +14,7 @@ from api.views import (
             ClothView,
         )
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
 User_router = DefaultRouter()
 User_router.register('user', UserCrud, basename='user')
@@ -50,4 +50,5 @@ urlpatterns = [
     path('endpoint/<slug:endpoint>/<int:data_id>/', DynamicApiHandler.as_view()),
     path('gettoken/',TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refreshtoken/',TokenRefreshView.as_view(), name='token_refresh'),
+    path('token-verify/', TokenVerifyView.as_view(), name='token-verify')
 ]

@@ -4,6 +4,17 @@
 
 {% block content %}
 <div class="container-fluid pb-5">
+    <div id="pop-up" class="pop-up-hide">
+        <p><button id="close-btn"><i class='bx bx-x'></i></button></p>
+        <p>Token is Expired !</p>
+        <div id="token-generator">
+            <p><label for="user-name">UserName :</label></p>
+            <p class="mt-2 mb-2"><input type="text" id="user-name" value="{{request.user.username}}"></p>
+            <p><label for="user-password">Password :</label></p>
+            <p class="mt-2 mb-2"><input type="password" id="user-password"></p>
+            <p class="mt-5 mb-2"><button onclick="generate()" class="btn cstm-btn">Generate Token</button></p>
+        </div>
+    </div>
     <div class="row mt-2">
           <div class="col-12"><h2 class="fs-1 text-center">Mock Api's</h2></div>
     </div>
@@ -111,61 +122,188 @@
 
 
 <script>
+    console.log(localStorage.getItem('access'))
+    function generate(){
+        let username = document.getElementById('user-name').value
+        let password = document.getElementById('user-password').value
+        if (username == '' && password == ''){
+            Swal.fire({
+                            title: "Credentials Required",
+                            icon: "error",
+                            draggable: false
+                        });
+        }
+        else{
+            fetch('http://127.0.0.1:8000/api/gettoken/', {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify({ username: username,password : password })
+        })
+        .then(response => {
+            console.log(response.ok)
+            if (response.ok){
+                return response.json()  
+            }
+            else{
+                Swal.fire({
+                            title: "Invalid Credentials",
+                            showConfirmButton : false,
+                            toast : true,
+                            position : 'top-end',
+                            timerProgressBar : true,
+                            timer : 3000,
+                            icon: "error",
+                            draggable: false
+                });
+                throw new Error("Invalid credentials");
+            }
+        })
+        .then(data => {
+            localStorage.setItem('access', data.access)
+                localStorage.setItem('refresh', data.refresh)
+                popup = document.getElementById('pop-up')
+                if(popup.classList.contains('pop-up-show')){
+                    popup.classList.remove('pop-up-show')
+                }
+                Swal.fire({
+                                title: "Token Created, Submit again!",
+                                icon: "success",
+                                draggable: false
+                            });
+        })
+        .catch(error => console.error('Error:', error));
+        } 
+    }
+
+    function create_mock(){
+        console.log("Called after Verified")
+        access = localStorage.getItem('access')
+        let name = document.getElementById('name').value;
+        let mock_endpoint = document.getElementById('mockpoint').value;
+        let method = document.getElementById('http-method').value;
+        let body = document.getElementById('request-body').value;
+        let response_header = document.getElementById('response-header').value;
+        let response_msg = document.getElementById('response-msg').value;
+        let response_code = document.getElementById('response-code').value;
+        let public_access = document.getElementById('public').checked;
+
+        let fetch_body = null
+
+        if(!body){
+            if(!response_header){
+                            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
+                        }
+                        else{
+                            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, response_header : JSON.parse(response_header), response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
+                        }
+            }
+            else{
+                        if(!response_header){
+                            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, body : JSON.parse(body), response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
+                        }
+                        else{
+                            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, body : JSON.parse(body), response_header : JSON.parse(response_header), response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
+                        }
+            }
+            console.log("Calling fetch")
+                    
+                    fetch('http://127.0.0.1:8000/api/mock/', {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization" : `Bearer ${access}`
+                        },
+                        method: "POST",
+                        body: fetch_body
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        Swal.fire({
+                            title: "Mock Created!",
+                            icon: "success",
+                            draggable: false
+                        });
+                    })
+                    .catch(error =>{
+                        Swal.fire({
+                            title: "Something Went Wrong",
+                            icon: "error",
+                            draggable: false
+                        });
+                    });
+    }
+        
+    document.getElementById('close-btn').addEventListener('click', (e)=>{
+        popup = document.getElementById('pop-up')
+        if(popup.classList.contains('pop-up-show')){
+            popup.classList.remove('pop-up-show')
+        }
+    })
+
     document.getElementById('mock-form').addEventListener('submit', function(event) {
     event.preventDefault();
-    let name = document.getElementById('name').value;
-    let mock_endpoint = document.getElementById('mockpoint').value;
-    let method = document.getElementById('http-method').value;
-    let body = document.getElementById('request-body').value;
-    let response_header = document.getElementById('response-header').value;
-    let response_msg = document.getElementById('response-msg').value;
-    let response_code = document.getElementById('response-code').value;
-    let public_access = document.getElementById('public').checked;
 
-    let fetch_body = null
-
-    if(!body){
-        if(!response_header){
-            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
-        }
-        else{
-            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, response_header : JSON.parse(response_header), response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
-        }
+    if (localStorage.access){
+        access = localStorage.getItem('access')
+        fetch('http://127.0.0.1:8000/api/token-verify/', {
+            headers : {"Content-Type": "application/json"},
+            method: "POST",
+            body: JSON.stringify({token : access})
+            })
+            .then(response => {
+                if (response.ok){
+                    return create_mock()    
+                }
+                else{
+                    refresh = localStorage.getItem('refresh')
+                    fetch('http://127.0.0.1:8000/api/refreshtoken/',{
+                        headers : {"Content-Type": "application/json"},
+                        method: "POST",
+                        body: JSON.stringify({refresh : refresh})
+                    })
+                    .then(response =>{
+                        if (response.ok){
+                            return response.json()
+                        }
+                        else{
+                            popup = document.getElementById('pop-up');
+                            popup.classList.add('pop-up-show');
+                        }
+                    })
+                    .then(data =>{
+                        localStorage.setItem('access', data.access)
+                        create_mock()
+                    })
+                    .catch(error =>{
+                        Swal.fire({
+                            title: "Something Went Wrong",
+                            icon: "error",
+                            draggable: false
+                        });
+                    })
+                }
+                
+            })
+            .then(data => {
+                Swal.fire({
+                    title: "Mock Created!",
+                    icon: "success",
+                    draggable: false
+                });
+            })
+            .catch(error =>{
+                Swal.fire({
+                    title: "Something Went Wrong",
+                    icon: "error",
+                    draggable: false
+                });
+            });
     }
     else{
-        if(!response_header){
-            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, body : JSON.parse(body), response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
-        }
-        else{
-            fetch_body = JSON.stringify({ name: name,mock_endpoint : mock_endpoint, method : method, body : JSON.parse(body), response_header : JSON.parse(response_header), response_msg : JSON.parse(response_msg), response_code : Number(response_code), public_access : public_access})
-        }
+        popup = document.getElementById('pop-up');
+        popup.classList.add('pop-up-show');
     }
-    
-    console.log(fetch_body)
-    
-    fetch('http://127.0.0.1:8000/api/mock/', {
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization" : "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ0NzE2NTQ3LCJpYXQiOjE3NDQ3MTQ3NDcsImp0aSI6IjQzYjBhNTBlMmNmNDRhZjlhZjc0MzFkOGY5OWViNWUxIiwidXNlcl9pZCI6MX0.5F7zcmW8s0fuTCoG2T-vBnLj1U5ydV_0egPFeZYcE6I"
-        },
-        method: "POST",
-        body: fetch_body
-    })
-    .then(response => response.json())
-    .then(data => {
-        Swal.fire({
-            title: "Mock Created!",
-            icon: "success",
-            draggable: false
-        });
-    })
-    .catch(error =>{
-        Swal.fire({
-            title: "Something Went Wrong",
-            icon: "error",
-            draggable: false
-        });
-    });
     });
 
 </script>

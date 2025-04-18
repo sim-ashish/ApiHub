@@ -17,7 +17,6 @@ from django.core.cache import cache
 from api.custom_field_validations import email_validation
 import re
 import json
-from django_redis import get_redis_connection
 from rest_framework.generics import ListCreateAPIView, ListAPIView
 from api.custom_permissions import IsOwnerOrAdmin
 
@@ -31,12 +30,13 @@ class UserCrud(viewsets.ModelViewSet):
     filterset_fields = ['name', 'city']  
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)       
+        serializer.save(created_by=self.request.user)  
+    
 
     def get_permissions(self):
         if self.action in ['destroy', 'update', 'partial_update']:
             return [IsAuthenticatedOrReadOnly(), IsOwnerOrAdmin()]
-        # return [IsAuthenticated()]
+        return [IsAuthenticatedOrReadOnly()]
          
 
 
@@ -45,11 +45,15 @@ class POSTCrud(viewsets.ModelViewSet):
 
     queryset = Post.objects.all()
     serializer_class = PostModelSerializer
-    # throttle_classes = [AnonRateThrottle, UserRateThrottle]
     throttle_classes = [CustomThrottle]
     filter_backends = [SearchFilter, DjangoFilterBackend]
     filterset_fields = ['id', 'user']    
-    search_fields = ['id', '$content']           
+    search_fields = ['id', '$content']
+
+    def get_permissions(self):
+        if self.action in ['destroy', 'update', 'partial_update']:
+            return [IsAuthenticatedOrReadOnly(), IsOwnerOrAdmin()]
+        return [IsAuthenticatedOrReadOnly()]          
 
 
 class FoodCategoryView(ListAPIView):
@@ -77,7 +81,7 @@ class FoodItemView(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['destroy', 'update', 'partial_update']:
             return [IsAuthenticatedOrReadOnly(), IsOwnerOrAdmin()]
-        # return [IsAuthenticated()]
+        return [IsAuthenticatedOrReadOnly()]
     
 
 class FoodOrderView(viewsets.ModelViewSet):
@@ -95,7 +99,7 @@ class FoodOrderView(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['destroy', 'update', 'partial_update']:
             return [IsAuthenticatedOrReadOnly(), IsOwnerOrAdmin()]
-        # return [IsAuthenticated()]
+        return [IsAuthenticatedOrReadOnly()]
     
 
 class FashionCategoryView(ListAPIView):
@@ -104,6 +108,7 @@ class FashionCategoryView(ListAPIView):
     throttle_classes = [CustomThrottle]
     def get_queryset(self):
         return FashionCategory.objects.all()
+    
     def get_serializer_class(self):
         return FashionCategorySerializer
     
@@ -134,7 +139,7 @@ class ClothView(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['destroy', 'update', 'partial_update']:
             return [IsAuthenticatedOrReadOnly(), IsOwnerOrAdmin()]
-        # return [IsAuthenticated()]
+        return [IsAuthenticatedOrReadOnly()]
 
 
 # Custom Api Views
@@ -257,7 +262,10 @@ class DynamicApiHandler(APIView):
         cache.set(str(endpoint), api_id + 1, timeout= None)            # Increasing the id for that specific endpoint
         return Response(custom_api.success_response, status=status.HTTP_201_CREATED)
     
+
     def put(self, request: Request , endpoint: str , data_id: int = None) -> Response : 
+        '''This function will handle put request for custom api endpoint'''
+
         try:
             custom_api = CustomApi.objects.get(endpoint=endpoint)
         except CustomApi.DoesNotExist:
@@ -272,14 +280,33 @@ class DynamicApiHandler(APIView):
                 data = request.data          
             except Exception:
                 return Response({"error": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST)
+            db_record_keys = list(record.data.keys())
+            db_record_keys.remove('id')
+            request_data_keys = list(data.keys())
+
+            try:
+                request_data_keys.remove('id')
+            except:
+                pass
+
+            if db_record_keys == request_data_keys:
+                for key in db_record_keys:
+                    record.data[key] = data[key]
+                record.save()
+                return Response(custom_api.success_response, status=status.HTTP_200_OK)
+
+            else:
+                return Response({"All fields are missing or provided extra fields": data}, status=status.HTTP_400_BAD_REQUEST)
             
-
-
+            
         else:
             return Response({"error": "Required an lookup id"}, status=status.HTTP_400_BAD_REQUEST)
+        
         
   
     def patch(self, request: Request , endpoint: str , data_id:int = None) -> Response : 
+        '''This function will handle patch request for custom api endpoint'''
+
         try:
             custom_api = CustomApi.objects.get(endpoint=endpoint)
         except CustomApi.DoesNotExist:
@@ -294,9 +321,28 @@ class DynamicApiHandler(APIView):
             except Exception:
                 return Response({"error": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST)
             
+            record_keys = list(record.data.keys())
+            record_keys.remove('id')
+            data_keys = list(data.keys())
+            try:
+                data_keys.remove('id')
+            except:
+                pass
+            record_keys_set = set(record_keys)
+            data_keys_set = set(data_keys)
+            print(data_keys_set - record_keys_set)
+            if len(data_keys_set - record_keys_set) != 0:
+                return Response({"error": f'{data_keys_set - record_keys_set}, is/are unknown fields'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                for key in data_keys:
+                    record.data[key] = data[key]
+                    record.save()
+                return Response(custom_api.success_response, status = status.HTTP_200_OK)
 
         else:
             return Response({"error": "Required an lookup id"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
           
     def delete(self, request: Request , endpoint: str , data_id: int = None) -> Response: 
         '''This function will handle delete request for custom api's endpoint'''
@@ -324,7 +370,8 @@ class MockView(ListCreateAPIView):
     '''This class will perform GET and POST operations for Mock Api's'''
 
     serializer_class = MockSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
     def perform_create(self, serializer):
         print("View : ", self.request.user)
         serializer.save()
@@ -338,6 +385,8 @@ class MockView(ListCreateAPIView):
 class MockHandlerView(APIView):
     '''Class To handle requests of Mock Api's'''
 
+    permission_classes = [IsAuthenticated]
+
     def get(self, request: str , mockapi: str) -> Response :
         '''This function will serve get method'''
 
@@ -345,6 +394,7 @@ class MockHandlerView(APIView):
             mock_api = Mock.objects.get(mock_endpoint = mockapi)
         except Mock.DoesNotExist:
             return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
+        
         if request.GET:
             print("Query Params",request.GET)
             query_params_dict = request.GET.dict()
@@ -363,6 +413,7 @@ class MockHandlerView(APIView):
                 return Response({"error" : "End-point not found"}, status=status.HTTP_404_NOT_FOUND)
             response = Response(mock_data.response_msg, status = mock_data.response_code)
             return response
+        
         
     def post(self, request: Request , mockapi: str) -> Response:
         '''This function will server post method of mock api'''

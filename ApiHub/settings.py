@@ -69,9 +69,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'frontend.middleware.MaintenanceMiddleware',                # Custom MiddleWare
-    #'frontend.middleware.IPBlacklistMiddleware',                # Custom MiddleWare
-    # 'frontend.middleware.LoggingMiddleware',                    # Custom MiddleWare
+    'frontend.middleware.MaintenanceMiddleware',                # Custom MiddleWare
+    'frontend.middleware.IPBlacklistMiddleware',                # Custom MiddleWare
+    'frontend.middleware.LoggingMiddleware',                    # Custom MiddleWare
 ]
 
 ROOT_URLCONF = 'ApiHub.urls'

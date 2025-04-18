@@ -8,12 +8,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from .forms import UserRegisterForm
 from django.contrib.auth.decorators import login_required
-from ApiHub.celery import Showmsg
 from ApiHub.mail_send import mail
 
 
 def index(request):
-    host = request.get_host()
     return render(request, 'frontend/index.html')
 
 def docs(request):

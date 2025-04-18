@@ -24,7 +24,8 @@ def subscription_mail(sender_mail, to_mail, uId):
 
 
 
-########### Redis TO Databse id transfer Schedules task #########################
+# Redis to Database id transfer for CustomApi Data
+
 @shared_task
 def redis_task():
         r = get_redis_connection("default")
@@ -52,7 +53,7 @@ def redis_task():
                 cache.delete(cache_key)
 
 
-############## Logging File Generator ##########################
+# Log File Generator 
 
 @shared_task
 def generate_log():
@@ -62,22 +63,11 @@ def generate_log():
     if filtered_data:
         new_data = filtered_data.values_list('req_user', 'req_method', 'endpoint', 'ip_address', 'request_time')
         
-        # Convert request_time to string using strftime() after getting the data
         formatted_data = []
         for row in new_data:
             formatted_row = list(row)
             formatted_row[4] = formatted_row[4].strftime('%Y-%m-%d %H:%M:%S')  
             formatted_data.append(tuple(formatted_row))
-        
-        # excel_file =os.path.join(settings.EXCEL_PATH, 'Logging.xlsx')
-        # wb = load_workbook(excel_file)
-        # ws = wb.active
-        
-        # for row in formatted_data:
-        #     ws.append(row)
-        
-        # wb.save(excel_file)
-        # filtered_data.delete()
 
         csv_file_path = os.path.join(settings.EXCEL_PATH, 'Logging.csv')
         with open(csv_file_path, mode='a', newline='') as file:

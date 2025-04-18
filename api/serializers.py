@@ -5,17 +5,13 @@ from django.contrib.auth.models import User
 import re
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
     class Meta:
         model = CustomUser
         fields = ['id', 'name', 'email', 'mobile', 'city', 'password', 'created_by']
-        extra_kwargs = {
-            'created_by': {'required': True},
-        }
+        read_only_fields = ['created_by']
     
-    def create(self, validated_data):
-        user = validated_data.pop('created_by') 
-        custom_user = CustomUser.objects.create(created_by=user, **validated_data)
+    def create(self, validated_data): 
+        custom_user = CustomUser.objects.create(**validated_data)
         return custom_user
 
     def validate_password(self, value):
@@ -25,11 +21,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return value
     
     
-    def validate_mobile(self, value):
-        if not re.match("^[6-9]\d{9}$", value):
-            raise serializers.ValidationError("Indian Numbers are Allowed")
-        
-        return value
 
 
 class PostModelSerializer(serializers.ModelSerializer):
@@ -149,8 +140,8 @@ class MockSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         print(validated_data)
         print("JWT : ",self.context['request'].user)
-        api_data = validated_data.pop('api')  # Extract api fields (name, mock_endpoint)
-        user = self.context['request'].user  # Assuming you have access to request context
+        api_data = validated_data.pop('api')
+        user = self.context['request'].user
 
         try:
             mock_obj, created = Mock.objects.get_or_create(

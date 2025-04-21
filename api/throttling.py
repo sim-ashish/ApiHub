@@ -13,6 +13,8 @@ from rest_framework.permissions import IsAuthenticated
 
 
 class CustomThrottle(BaseThrottle):
+    '''Custom throttle class to provide limits for anonymous, authenticated and subscribes users'''
+    
     # Defining throttling limits
     RATE_LIMITS = {
         'anonymous': 30,  # 30 requests/day for anonymous users

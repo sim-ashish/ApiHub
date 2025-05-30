@@ -105,7 +105,7 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASS'),
-        'HOST': 'localhost',
+        'HOST': os.environ.get('DATABASE_URL'),
         'PORT': '5432',
     }
 }
@@ -159,7 +159,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": 'redis://rediservice:6379/1',
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "MAX_ENTRIES": 10000
@@ -173,8 +173,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'your-email'
-EMAIL_HOST_PASSWORD = 'your-password'
+EMAIL_HOST_USER = 'krushanuinfolabz@gmail.com'
+EMAIL_HOST_PASSWORD = 'pjobvjckluqrtojl'
 
 
 
@@ -199,8 +199,8 @@ SIMPLE_JWT = {
 
 
 # Celery Settings
-CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+CELERY_BROKER_URL = 'redis://rediservice:6379/0'
+CELERY_RESULT_BACKEND = 'redis://rediservice:6379/0'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 
 # Celery Beat

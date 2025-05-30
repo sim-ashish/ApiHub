@@ -1,0 +1,76 @@
+services:
+  postgresql:
+    image: postgres
+    container_name: postgres_db
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "hello123inoPG"
+      POSTGRES_DB: "apihub"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  rediservice:
+    image: redis
+    container_name: redis_db
+    restart: always
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "profilely@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "adminprofilely"
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgresql
+
+  apihub_web:
+    image: ashbytes/apihub:latest
+    container_name: apihub_web
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      rediservice:
+        condition: service_healthy
+
+  apihub_worker:
+    image: ashbytes/apihub:latest
+    container_name: apihub_worker
+    restart: always
+    command: celery -A ApiHub worker -l info
+    env_file:
+      - .env
+    depends_on:
+      rediservice:
+        condition: service_healthy
+
+  apihub_beat:
+    image: ashbytes/apihub:latest
+    container_name: apihub_beat
+    restart: always
+    command: celery -A ApiHub beat -l info
+    env_file:
+      - .env
+    depends_on:
+      rediservice:
+        condition: service_healthy

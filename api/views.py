@@ -373,7 +373,6 @@ class MockView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        print("View : ", self.request.user)
         serializer.save()
 
     def get_queryset(self):

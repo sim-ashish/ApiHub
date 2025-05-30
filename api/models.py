@@ -82,34 +82,6 @@ class CustomApi(models.Model):
     def __str__(self):
         return str(self.endpoint)
 
-'''
-{
-"name" : "Age Checker",
-"endpoint" : "agecheck",
-"success_response" : {"message" : "Valid age!"},
-"error_response" : {"message" : "Invalid age!"},
-"validations":{
-        "age" : {"type" : "int", "min" : 18, "max" : 65},
-        "name" : {"type" : "str"}
-    },
-"public" : true
-}
-'''
-
-'''
-{
-"name" : "User Storage",
-"endpoint" : "users",
-"success_response" : {"success" : "Operation Successfull!"},
-"error_response" : {"error" : "Operation Failed!"},
-"validations":{
-        "age" : {"type" : "integer", "min" : 18, "max" : 65},
-        "name" : {"type" : "string"},
-        "email" : {"type" : "string", "regex" : "email"}
-    },
-"public" : true
-}
-'''
 
 
 class HitLog(models.Model):
